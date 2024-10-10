@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from app.routers.user_routes import router as user_router
+from app.routers.email_routes import router as email_router
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from logging.handlers import RotatingFileHandler
@@ -38,6 +39,7 @@ ROUTE_PREFIX = os.getenv("ROUTE_PREFIX")
 
 # Include Routers
 app.include_router(user_router, prefix=ROUTE_PREFIX)
+app.include_router(email_router, prefix=ROUTE_PREFIX)
 
 
 def setup_logging():

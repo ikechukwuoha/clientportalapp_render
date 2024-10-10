@@ -2,6 +2,7 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from app.config.settings import settings
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+from pydantic import EmailStr
 
 
 
@@ -44,3 +45,14 @@ class EmailService:
     async def handle_email_verification(self, db, email):
         verification_token = self.create_access_token(data={"email": email})
         await self.send_verification_email(email, verification_token)
+
+class PasswordResetMailService:
+    async def send_reset_password_email(email: EmailStr, token: str):
+        message = MessageSchema(
+            subject="Password Reset Request",
+            recipients=[email],  
+            body=f"Click the link to reset your password: http://localhost:4000/reset-password?token={token}",
+            subtype="html"
+        )
+        fm = FastMail(conf)
+        await fm.send_message(message)

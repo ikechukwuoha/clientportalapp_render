@@ -71,3 +71,9 @@ class SignupResponse(BaseModel):
     user: UserResponse
     access_token: str
     token_type: str
+
+class ResetPassword(BaseModel):
+    password: str
+
+class Email(BaseModel):
+    email: EmailStr
