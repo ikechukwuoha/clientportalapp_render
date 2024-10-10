@@ -945,3 +945,8 @@ WHERE users.id = %(pk_1)s::UUID
 2024-10-10 05:45:24,295 - INFO - Waiting for application shutdown.
 2024-10-10 05:45:24,296 - INFO - Application shutdown complete.
 2024-10-10 05:45:24,296 - INFO - Finished server process [18727]
+2024-10-10 14:25:48,769 - INFO - App started successfully!
+2024-10-10 14:25:48,770 - INFO - Database connected successfully!
+2024-10-10 14:25:48,771 - INFO - Started server process [25248]
+2024-10-10 14:25:48,771 - INFO - Waiting for application startup.
+2024-10-10 14:25:48,772 - INFO - Application startup complete.
