@@ -2,6 +2,7 @@
 
 
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.repository.users_repository import create_user, get_user_by_email
 from app.schemas.user_schema import UserCreate, UserLogin
@@ -47,7 +48,10 @@ async def signup(db: Session, user: UserCreate) -> str:
     # Send verification email
     await email_service.handle_email_verification(db, user.email)
 
-    return "User created. Please check your email to verify your account."
+    return JSONResponse(
+        status_code=201,  # HTTP status for "Created"
+        content={"message": "User created. Please check your email to verify your account."}
+    )
 
 
 

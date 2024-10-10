@@ -41,7 +41,7 @@ class EmailService:
                         Activate Account
                     </a>
                     <p style="margin-top: 20px;">If the button above doesn't work, copy and paste the following link into your browser:</p>
-                    <p><a href="http://localhost:8000/api/verify-email?token={token}" style="color: #6A0DAD;">http://localhost:8000/verify-email?token={token}</a></p>
+                    <p><a href="http://localhost:8000/api/verify-email?token={token}" style="color: #6A0DAD;">http://localhost:8000/api/verify-email?token={token}</a></p>
                 </div>
             </body>
         </html>

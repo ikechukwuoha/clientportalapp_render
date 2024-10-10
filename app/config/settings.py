@@ -33,5 +33,4 @@ class Settings(BaseSettings):
 
 # Initialize settings
 settings = Settings()
-print(f"SECRET_KEY from settings: {settings.SECRET_KEY}")
 
