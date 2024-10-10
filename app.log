@@ -950,3 +950,12 @@ WHERE users.id = %(pk_1)s::UUID
 2024-10-10 14:25:48,771 - INFO - Started server process [25248]
 2024-10-10 14:25:48,771 - INFO - Waiting for application startup.
 2024-10-10 14:25:48,772 - INFO - Application startup complete.
+2024-10-10 14:29:37,280 - INFO - Shutting down
+2024-10-10 14:29:37,390 - INFO - Waiting for application shutdown.
+2024-10-10 14:29:37,390 - INFO - Application shutdown complete.
+2024-10-10 14:29:37,390 - INFO - Finished server process [25248]
+2024-10-10 14:29:40,142 - INFO - App started successfully!
+2024-10-10 14:29:40,143 - INFO - Database connected successfully!
+2024-10-10 14:29:40,144 - INFO - Started server process [47948]
+2024-10-10 14:29:40,144 - INFO - Waiting for application startup.
+2024-10-10 14:29:40,144 - INFO - Application startup complete.
