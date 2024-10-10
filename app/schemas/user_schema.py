@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from uuid import UUID
 from pydantic import BaseModel, field_validator, Field, EmailStr
 import re
@@ -65,9 +66,3 @@ class UserResponse(BaseModel):
     class Config:
         # Make sure Pydantic uses the correct types for serialization
         from_attributes = True
-
-
-class SignupResponse(BaseModel):
-    user: UserResponse
-    access_token: str
-    token_type: str

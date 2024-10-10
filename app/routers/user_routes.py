@@ -10,7 +10,7 @@ from app.services.user_services import signin, signup
 
 router = APIRouter()
 
-@router.post("/signup")
+@router.post("/auth/signup")
 async def signup_endpoint(user: UserCreate, db: Session = Depends(get_db)):
     return await signup(db, user)
 

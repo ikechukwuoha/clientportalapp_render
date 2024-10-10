@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     
+    
     # New email configuration settings
     SMTP_SERVER: str
     SMTP_PORT: int
@@ -24,7 +25,7 @@ class Settings(BaseSettings):
     
 
     # Other configurations
-    route_prefix: str = "/api"
+    ROUTE_PREFIX: str = "/api"
 
     class Config:
         env_file = ".env"  # Load settings from .env file
@@ -32,3 +33,5 @@ class Settings(BaseSettings):
 
 # Initialize settings
 settings = Settings()
+print(f"SECRET_KEY from settings: {settings.SECRET_KEY}")
+
