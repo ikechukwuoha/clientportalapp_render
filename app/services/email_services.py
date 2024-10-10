@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from pydantic import EmailStr
 
+from app.security.security import create_verification_token
+
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.SMTP_USER,
     MAIL_PASSWORD=settings.SMTP_PASSWORD,
@@ -22,12 +24,7 @@ class EmailService:
     def __init__(self):
         self.fm = FastMail(conf)
 
-    def create_access_token(self, data: dict):
-        to_encode = data.copy()
-        expire = datetime.now() + timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
-        to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-        return encoded_jwt
+
 
     async def send_verification_email(self, email: str, token: str):
         # HTML email template with purple activation button on white background
@@ -57,16 +54,43 @@ class EmailService:
         await self.fm.send_message(message)
 
     async def handle_email_verification(self, db, email):
-        verification_token = self.create_access_token(data={"email": email})
+        verification_token = create_verification_token(data={"email": email})
         await self.send_verification_email(email, verification_token)
-
+        
+        
+        
 class PasswordResetMailService:
-    async def send_reset_password_email(email: EmailStr, token: str):
+    async def send_reset_password_email(self, email: EmailStr, token: str, first_name: str):
+        # HTML content with purple on white styling, incorporating the first name
+        html_content = f"""
+        <html>
+        <body style="background-color: #ffffff; color: #4B0082; padding: 20px; font-family: Arial, sans-serif; text-align: center;">
+            <div style="max-width: 600px; margin: auto; padding: 20px; border: 2px solid #4B0082; border-radius: 10px;">
+                <h2 style="color: #4B0082;">Password Reset Request</h2>
+                <p style="font-size: 16px; color: #333;">
+                    Hello {first_name}, <br><br>
+                    You requested to reset your password. Please click the button below to reset it:
+                </p>
+                <a href="http://localhost:8000/api/reset-password?token={token}" 
+                   style="background-color: #4B0082; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 16px; border-radius: 5px;">
+                    Reset Password
+                </a>
+                <p style="margin-top: 20px; font-size: 12px; color: #666;">
+                    If you did not request this password reset, you can safely ignore this email.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Create the message object with the styled HTML content
         message = MessageSchema(
             subject="Password Reset Request",
             recipients=[email],  
-            body=f"Click the link to reset your password: http://localhost:4000/reset-password?token={token}",
-            subtype="html"
+            body=html_content,  # Using the styled HTML content
+            subtype="html"  # Specifying that the content is HTML
         )
+
+        # Initialize FastMail and send the email
         fm = FastMail(conf)
         await fm.send_message(message)

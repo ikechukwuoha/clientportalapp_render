@@ -6,7 +6,7 @@ from app.database.db import get_db
 from app.models.user_model import User
 from app.security.security import create_access_token
 from app.services.email_services import EmailService, PasswordResetMailService
-from app.security.mail_token import create_password_reset_token, verify_password_reset_token
+from app.security.security import create_verification_token, verify_password_reset_token
 from app.security.security import hash_password
 from app.schemas.user_schema import Email, ResetPassword
 
@@ -14,7 +14,7 @@ from app.schemas.user_schema import Email, ResetPassword
 router = APIRouter()
 email_service = EmailService()
 
-@router.get("/verify-email")
+@router.get("/verify-email", tags=["auth"])
 async def verify_email(token: str, db: Session = Depends(get_db), response: Response = None):  # Include response here
     try:
         # Decode the token and check for errors
@@ -57,9 +57,37 @@ async def verify_email(token: str, db: Session = Depends(get_db), response: Resp
         raise HTTPException(status_code=400, detail="Invalid token")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+    
+    
+    
+    
+    
+    
+@router.post("/password-reset", status_code=status.HTTP_200_OK, tags=["auth"])
+async def request_password_reset(email: Email, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == email.email).first()
+    
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User with this email does not exist")
+    
+    # Create the verification token
+    token = create_verification_token({"sub": user.email})
+    
+    # Create an instance of the PasswordResetMailService
+    password_reset_service = PasswordResetMailService()
+
+    # Pass the user's first name to the email service
+    await password_reset_service.send_reset_password_email(user.email, token, user.first_name)
+    
+    return {"message": "Password reset link sent to your email."}
 
 
-@router.post("/reset-password", status_code=status.HTTP_200_OK)
+
+
+
+
+
+@router.post("/reset-password", status_code=status.HTTP_200_OK, tags=["auth"])
 async def reset_password(token: str, new_password: ResetPassword, db: Session = Depends(get_db)):
     email = verify_password_reset_token(token)
     print(f"Email extracted from token: {email}")
@@ -76,15 +104,5 @@ async def reset_password(token: str, new_password: ResetPassword, db: Session = 
     
     return {"message": "Password updated successfully."}
 
-@router.post("/password-reset", status_code=status.HTTP_200_OK)
-async def request_password_reset(email: Email, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == email.email).first()
-    
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User with this email does not exist")
-    
-    token = create_password_reset_token({"sub": user.email})
-    await PasswordResetMailService.send_reset_password_email(user.email, token)
-    
-    return {"message": "Password reset link sent to your email."}
+
 

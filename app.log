@@ -1914,3 +1914,1150 @@ WHERE users.email = %(email_1)s
  LIMIT %(param_1)s
 2024-10-10 16:29:26,372 - INFO - [cached since 352.4s ago] {'email_1': 'samuelwaku1st@gmail.com', 'param_1': 1}
 2024-10-10 16:29:26,632 - INFO - ROLLBACK
+2024-10-10 22:06:25,191 - INFO - App started successfully!
+2024-10-10 22:06:25,192 - INFO - Database connected successfully!
+2024-10-10 22:06:25,193 - INFO - Started server process [11434]
+2024-10-10 22:06:25,193 - INFO - Waiting for application startup.
+2024-10-10 22:06:25,194 - INFO - Application startup complete.
+2024-10-10 22:08:58,872 - INFO - Shutting down
+2024-10-10 22:08:58,974 - INFO - Waiting for application shutdown.
+2024-10-10 22:08:58,976 - INFO - Application shutdown complete.
+2024-10-10 22:08:58,978 - INFO - Finished server process [11434]
+2024-10-10 22:09:01,019 - INFO - App started successfully!
+2024-10-10 22:09:01,020 - INFO - Database connected successfully!
+2024-10-10 22:09:01,021 - INFO - Started server process [11818]
+2024-10-10 22:09:01,021 - INFO - Waiting for application startup.
+2024-10-10 22:09:01,022 - INFO - Application startup complete.
+2024-10-10 22:09:05,147 - INFO - Shutting down
+2024-10-10 22:09:05,247 - INFO - Waiting for application shutdown.
+2024-10-10 22:09:05,248 - INFO - Application shutdown complete.
+2024-10-10 22:09:05,248 - INFO - Finished server process [11818]
+2024-10-10 22:09:08,510 - INFO - App started successfully!
+2024-10-10 22:09:08,512 - INFO - Database connected successfully!
+2024-10-10 22:09:08,514 - INFO - Started server process [11865]
+2024-10-10 22:09:08,515 - INFO - Waiting for application startup.
+2024-10-10 22:09:08,516 - INFO - Application startup complete.
+2024-10-10 22:09:11,397 - INFO - App started successfully!
+2024-10-10 22:09:11,398 - INFO - Database connected successfully!
+2024-10-10 22:09:11,399 - INFO - Started server process [11890]
+2024-10-10 22:09:11,399 - INFO - Waiting for application startup.
+2024-10-10 22:09:11,400 - INFO - Application startup complete.
+2024-10-10 22:09:13,214 - INFO - App started successfully!
+2024-10-10 22:09:13,216 - INFO - Database connected successfully!
+2024-10-10 22:09:13,216 - INFO - Started server process [11922]
+2024-10-10 22:09:13,216 - INFO - Waiting for application startup.
+2024-10-10 22:09:13,217 - INFO - Application startup complete.
+2024-10-10 22:09:15,632 - INFO - Shutting down
+2024-10-10 22:09:15,733 - INFO - Waiting for application shutdown.
+2024-10-10 22:09:15,734 - INFO - Application shutdown complete.
+2024-10-10 22:09:15,735 - INFO - Finished server process [11922]
+2024-10-10 22:09:17,986 - INFO - App started successfully!
+2024-10-10 22:09:17,987 - INFO - Database connected successfully!
+2024-10-10 22:09:17,987 - INFO - Started server process [11941]
+2024-10-10 22:09:17,988 - INFO - Waiting for application startup.
+2024-10-10 22:09:17,988 - INFO - Application startup complete.
+2024-10-10 22:09:19,879 - INFO - App started successfully!
+2024-10-10 22:09:19,880 - INFO - Database connected successfully!
+2024-10-10 22:09:19,880 - INFO - Started server process [11960]
+2024-10-10 22:09:19,881 - INFO - Waiting for application startup.
+2024-10-10 22:09:19,881 - INFO - Application startup complete.
+2024-10-10 22:11:10,319 - INFO - Shutting down
+2024-10-10 22:11:10,420 - INFO - Waiting for application shutdown.
+2024-10-10 22:11:10,421 - INFO - Application shutdown complete.
+2024-10-10 22:11:10,421 - INFO - Finished server process [11960]
+2024-10-10 22:11:12,771 - INFO - App started successfully!
+2024-10-10 22:11:12,772 - INFO - Database connected successfully!
+2024-10-10 22:11:12,773 - INFO - Started server process [12133]
+2024-10-10 22:11:12,774 - INFO - Waiting for application startup.
+2024-10-10 22:11:12,775 - INFO - Application startup complete.
+2024-10-10 22:11:23,118 - INFO - Shutting down
+2024-10-10 22:11:23,221 - INFO - Waiting for application shutdown.
+2024-10-10 22:11:23,221 - INFO - Application shutdown complete.
+2024-10-10 22:11:23,222 - INFO - Finished server process [12133]
+2024-10-10 22:11:25,232 - INFO - App started successfully!
+2024-10-10 22:11:25,233 - INFO - Database connected successfully!
+2024-10-10 22:11:25,233 - INFO - Started server process [12196]
+2024-10-10 22:11:25,234 - INFO - Waiting for application startup.
+2024-10-10 22:11:25,234 - INFO - Application startup complete.
+2024-10-10 22:14:24,333 - INFO - Shutting down
+2024-10-10 22:14:24,433 - INFO - Waiting for application shutdown.
+2024-10-10 22:14:24,434 - INFO - Application shutdown complete.
+2024-10-10 22:14:24,434 - INFO - Finished server process [12196]
+2024-10-10 22:15:10,653 - INFO - App started successfully!
+2024-10-10 22:15:10,654 - INFO - Database connected successfully!
+2024-10-10 22:15:10,655 - INFO - Started server process [12617]
+2024-10-10 22:15:10,655 - INFO - Waiting for application startup.
+2024-10-10 22:15:10,655 - INFO - Application startup complete.
+2024-10-10 22:15:13,367 - INFO - Shutting down
+2024-10-10 22:15:13,468 - INFO - Waiting for application shutdown.
+2024-10-10 22:15:13,468 - INFO - Application shutdown complete.
+2024-10-10 22:15:13,468 - INFO - Finished server process [12617]
+2024-10-10 22:15:15,421 - INFO - App started successfully!
+2024-10-10 22:15:15,423 - INFO - Database connected successfully!
+2024-10-10 22:15:15,423 - INFO - Started server process [12659]
+2024-10-10 22:15:15,424 - INFO - Waiting for application startup.
+2024-10-10 22:15:15,424 - INFO - Application startup complete.
+2024-10-10 22:36:04,772 - INFO - Shutting down
+2024-10-10 22:36:04,873 - INFO - Waiting for application shutdown.
+2024-10-10 22:36:04,875 - INFO - Application shutdown complete.
+2024-10-10 22:36:04,875 - INFO - Finished server process [12659]
+2024-10-10 22:36:07,080 - INFO - App started successfully!
+2024-10-10 22:36:07,083 - INFO - Database connected successfully!
+2024-10-10 22:36:07,085 - INFO - Started server process [14792]
+2024-10-10 22:36:07,085 - INFO - Waiting for application startup.
+2024-10-10 22:36:07,085 - INFO - Application startup complete.
+2024-10-10 22:36:09,505 - INFO - Shutting down
+2024-10-10 22:36:09,606 - INFO - Waiting for application shutdown.
+2024-10-10 22:36:09,606 - INFO - Application shutdown complete.
+2024-10-10 22:36:09,607 - INFO - Finished server process [14792]
+2024-10-10 22:36:11,493 - INFO - App started successfully!
+2024-10-10 22:36:11,494 - INFO - Database connected successfully!
+2024-10-10 22:36:11,495 - INFO - Started server process [14830]
+2024-10-10 22:36:11,495 - INFO - Waiting for application startup.
+2024-10-10 22:36:11,496 - INFO - Application startup complete.
+2024-10-10 22:36:19,333 - INFO - Shutting down
+2024-10-10 22:36:19,434 - INFO - Waiting for application shutdown.
+2024-10-10 22:36:19,434 - INFO - Application shutdown complete.
+2024-10-10 22:36:19,435 - INFO - Finished server process [14830]
+2024-10-10 22:38:06,846 - INFO - App started successfully!
+2024-10-10 22:38:06,847 - INFO - Database connected successfully!
+2024-10-10 22:38:06,848 - INFO - Started server process [15443]
+2024-10-10 22:38:06,848 - INFO - Waiting for application startup.
+2024-10-10 22:38:06,849 - INFO - Application startup complete.
+2024-10-10 22:39:03,786 - INFO - Shutting down
+2024-10-10 22:39:03,887 - INFO - Waiting for application shutdown.
+2024-10-10 22:39:03,888 - INFO - Application shutdown complete.
+2024-10-10 22:39:03,888 - INFO - Finished server process [15443]
+2024-10-10 22:39:06,097 - INFO - App started successfully!
+2024-10-10 22:39:06,099 - INFO - Database connected successfully!
+2024-10-10 22:39:06,099 - INFO - Started server process [15556]
+2024-10-10 22:39:06,100 - INFO - Waiting for application startup.
+2024-10-10 22:39:06,100 - INFO - Application startup complete.
+2024-10-10 22:39:07,813 - INFO - Shutting down
+2024-10-10 22:39:07,914 - INFO - Waiting for application shutdown.
+2024-10-10 22:39:07,915 - INFO - Application shutdown complete.
+2024-10-10 22:39:07,915 - INFO - Finished server process [15556]
+2024-10-10 22:39:09,778 - INFO - App started successfully!
+2024-10-10 22:39:09,781 - INFO - Database connected successfully!
+2024-10-10 22:39:09,783 - INFO - Started server process [15589]
+2024-10-10 22:39:09,783 - INFO - Waiting for application startup.
+2024-10-10 22:39:09,783 - INFO - Application startup complete.
+2024-10-10 22:39:12,198 - INFO - Shutting down
+2024-10-10 22:39:12,299 - INFO - Waiting for application shutdown.
+2024-10-10 22:39:12,300 - INFO - Application shutdown complete.
+2024-10-10 22:39:12,300 - INFO - Finished server process [15589]
+2024-10-10 22:39:14,197 - INFO - App started successfully!
+2024-10-10 22:39:14,199 - INFO - Database connected successfully!
+2024-10-10 22:39:14,199 - INFO - Started server process [15624]
+2024-10-10 22:39:14,200 - INFO - Waiting for application startup.
+2024-10-10 22:39:14,200 - INFO - Application startup complete.
+2024-10-10 22:40:17,922 - INFO - BEGIN (implicit)
+2024-10-10 22:40:17,928 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 22:40:17,928 - INFO - [generated in 0.00063s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 22:40:17,936 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 22:40:18,305 - INFO - INSERT INTO users (id, first_name, last_name, email, password, is_active) VALUES (%(id)s::UUID, %(first_name)s, %(last_name)s, %(email)s, %(password)s, %(is_active)s) RETURNING users.created_at, users.updated_at
+2024-10-10 22:40:18,305 - INFO - [generated in 0.00050s] {'id': UUID('f073fc8a-f1d0-4128-853f-68163e47c9b3'), 'first_name': 'Samuel22', 'last_name': 'Wakumelo22', 'email': 'largemichaels094@gmail.com', 'password': '$2b$12$9tKHQsZuVj/f1nBe5VEsoOoOv9681WMcnxWHFUTYAYyfl8F60021S', 'is_active': False}
+2024-10-10 22:40:18,307 - INFO - COMMIT
+2024-10-10 22:40:18,314 - INFO - BEGIN (implicit)
+2024-10-10 22:40:18,316 - INFO - SELECT users.id, users.first_name, users.last_name, users.email, users.password, users.created_at, users.updated_at, users.is_active 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID
+2024-10-10 22:40:18,316 - INFO - [generated in 0.00061s] {'pk_1': UUID('f073fc8a-f1d0-4128-853f-68163e47c9b3')}
+2024-10-10 22:40:18,322 - INFO - ROLLBACK
+2024-10-10 22:40:18,325 - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/terminalnator/Client_portal/app/routers/user_routes.py", line 15, in signup_endpoint
+    return await signup(db, user)
+  File "/home/terminalnator/Client_portal/app/services/user_services.py", line 49, in signup
+    await email_service.handle_email_verification(db, user.email)
+  File "/home/terminalnator/Client_portal/app/services/email_services.py", line 53, in handle_email_verification
+    verification_token = self.create_access_token(data={"email": email})
+AttributeError: 'EmailService' object has no attribute 'create_access_token'
+2024-10-10 22:41:23,398 - INFO - Shutting down
+2024-10-10 22:41:23,501 - INFO - Waiting for application shutdown.
+2024-10-10 22:41:23,502 - INFO - Application shutdown complete.
+2024-10-10 22:41:23,502 - INFO - Finished server process [15624]
+2024-10-10 22:41:26,505 - INFO - App started successfully!
+2024-10-10 22:41:26,511 - INFO - Database connected successfully!
+2024-10-10 22:41:26,513 - INFO - Started server process [15920]
+2024-10-10 22:41:26,513 - INFO - Waiting for application startup.
+2024-10-10 22:41:26,514 - INFO - Application startup complete.
+2024-10-10 22:41:28,124 - INFO - Shutting down
+2024-10-10 22:41:28,224 - INFO - Waiting for application shutdown.
+2024-10-10 22:41:28,225 - INFO - Application shutdown complete.
+2024-10-10 22:41:28,225 - INFO - Finished server process [15920]
+2024-10-10 22:41:30,085 - INFO - App started successfully!
+2024-10-10 22:41:30,086 - INFO - Database connected successfully!
+2024-10-10 22:41:30,086 - INFO - Started server process [15957]
+2024-10-10 22:41:30,086 - INFO - Waiting for application startup.
+2024-10-10 22:41:30,087 - INFO - Application startup complete.
+2024-10-10 22:41:45,263 - INFO - Shutting down
+2024-10-10 22:41:45,364 - INFO - Waiting for application shutdown.
+2024-10-10 22:41:45,365 - INFO - Application shutdown complete.
+2024-10-10 22:41:45,365 - INFO - Finished server process [15957]
+2024-10-10 22:41:46,854 - INFO - App started successfully!
+2024-10-10 22:41:46,855 - INFO - Database connected successfully!
+2024-10-10 22:41:46,856 - INFO - Started server process [16052]
+2024-10-10 22:41:46,856 - INFO - Waiting for application startup.
+2024-10-10 22:41:46,856 - INFO - Application startup complete.
+2024-10-10 22:42:26,418 - INFO - Shutting down
+2024-10-10 22:42:26,519 - INFO - Waiting for application shutdown.
+2024-10-10 22:42:26,520 - INFO - Application shutdown complete.
+2024-10-10 22:42:26,520 - INFO - Finished server process [16052]
+2024-10-10 22:43:15,945 - INFO - App started successfully!
+2024-10-10 22:43:15,947 - INFO - Database connected successfully!
+2024-10-10 22:43:15,947 - INFO - Started server process [16482]
+2024-10-10 22:43:15,948 - INFO - Waiting for application startup.
+2024-10-10 22:43:15,948 - INFO - Application startup complete.
+2024-10-10 22:44:11,871 - INFO - BEGIN (implicit)
+2024-10-10 22:44:11,877 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 22:44:11,877 - INFO - [generated in 0.00084s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 22:44:11,885 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 22:44:12,268 - INFO - INSERT INTO users (id, first_name, last_name, email, password, is_active) VALUES (%(id)s::UUID, %(first_name)s, %(last_name)s, %(email)s, %(password)s, %(is_active)s) RETURNING users.created_at, users.updated_at
+2024-10-10 22:44:12,268 - INFO - [generated in 0.00048s] {'id': UUID('66db2523-0392-4fde-8855-67b14c785a5c'), 'first_name': 'Samuel22', 'last_name': 'Wakumelo22', 'email': 'largemichaels094@gmail.com', 'password': '$2b$12$NJh0h5q1iMD5oc5bFbQCsupBFlFzQmNsaICHZN6QfAIjnhAPWS7IG', 'is_active': False}
+2024-10-10 22:44:12,271 - INFO - COMMIT
+2024-10-10 22:44:12,275 - INFO - BEGIN (implicit)
+2024-10-10 22:44:12,277 - INFO - SELECT users.id, users.first_name, users.last_name, users.email, users.password, users.created_at, users.updated_at, users.is_active 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID
+2024-10-10 22:44:12,277 - INFO - [generated in 0.00045s] {'pk_1': UUID('66db2523-0392-4fde-8855-67b14c785a5c')}
+2024-10-10 22:44:12,283 - INFO - ROLLBACK
+2024-10-10 22:44:12,284 - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/terminalnator/Client_portal/app/routers/user_routes.py", line 15, in signup_endpoint
+    return await signup(db, user)
+  File "/home/terminalnator/Client_portal/app/services/user_services.py", line 49, in signup
+    await email_service.handle_email_verification(db, user.email)
+  File "/home/terminalnator/Client_portal/app/services/email_services.py", line 54, in handle_email_verification
+    verification_token = self.create_verification_token(data={"email": email})
+AttributeError: 'EmailService' object has no attribute 'create_verification_token'
+2024-10-10 22:45:50,882 - INFO - Shutting down
+2024-10-10 22:45:50,984 - INFO - Waiting for application shutdown.
+2024-10-10 22:45:50,985 - INFO - Application shutdown complete.
+2024-10-10 22:45:50,986 - INFO - Finished server process [16482]
+2024-10-10 22:45:54,059 - INFO - App started successfully!
+2024-10-10 22:45:54,063 - INFO - Database connected successfully!
+2024-10-10 22:45:54,064 - INFO - Started server process [16897]
+2024-10-10 22:45:54,064 - INFO - Waiting for application startup.
+2024-10-10 22:45:54,065 - INFO - Application startup complete.
+2024-10-10 22:46:18,666 - INFO - Shutting down
+2024-10-10 22:46:18,767 - INFO - Waiting for application shutdown.
+2024-10-10 22:46:18,768 - INFO - Application shutdown complete.
+2024-10-10 22:46:18,769 - INFO - Finished server process [16897]
+2024-10-10 22:46:21,487 - INFO - App started successfully!
+2024-10-10 22:46:21,491 - INFO - Database connected successfully!
+2024-10-10 22:46:21,492 - INFO - Started server process [16990]
+2024-10-10 22:46:21,493 - INFO - Waiting for application startup.
+2024-10-10 22:46:21,493 - INFO - Application startup complete.
+2024-10-10 22:46:24,055 - INFO - App started successfully!
+2024-10-10 22:46:24,058 - INFO - Database connected successfully!
+2024-10-10 22:46:24,059 - INFO - Started server process [17026]
+2024-10-10 22:46:24,059 - INFO - Waiting for application startup.
+2024-10-10 22:46:24,060 - INFO - Application startup complete.
+2024-10-10 22:46:24,363 - INFO - Shutting down
+2024-10-10 22:46:24,464 - INFO - Waiting for application shutdown.
+2024-10-10 22:46:24,465 - INFO - Application shutdown complete.
+2024-10-10 22:46:24,465 - INFO - Finished server process [17026]
+2024-10-10 22:46:26,104 - INFO - App started successfully!
+2024-10-10 22:46:26,105 - INFO - Database connected successfully!
+2024-10-10 22:46:26,106 - INFO - Started server process [17047]
+2024-10-10 22:46:26,106 - INFO - Waiting for application startup.
+2024-10-10 22:46:26,107 - INFO - Application startup complete.
+2024-10-10 22:46:41,570 - INFO - Shutting down
+2024-10-10 22:46:41,671 - INFO - Waiting for application shutdown.
+2024-10-10 22:46:41,672 - INFO - Application shutdown complete.
+2024-10-10 22:46:41,672 - INFO - Finished server process [17047]
+2024-10-10 22:46:44,403 - INFO - App started successfully!
+2024-10-10 22:46:44,404 - INFO - Database connected successfully!
+2024-10-10 22:46:44,404 - INFO - Started server process [17137]
+2024-10-10 22:46:44,405 - INFO - Waiting for application startup.
+2024-10-10 22:46:44,405 - INFO - Application startup complete.
+2024-10-10 22:46:46,305 - INFO - App started successfully!
+2024-10-10 22:46:46,306 - INFO - Database connected successfully!
+2024-10-10 22:46:46,307 - INFO - Started server process [17172]
+2024-10-10 22:46:46,307 - INFO - Waiting for application startup.
+2024-10-10 22:46:46,307 - INFO - Application startup complete.
+2024-10-10 22:46:53,843 - INFO - Shutting down
+2024-10-10 22:46:53,944 - INFO - Waiting for application shutdown.
+2024-10-10 22:46:53,945 - INFO - Application shutdown complete.
+2024-10-10 22:46:53,945 - INFO - Finished server process [17172]
+2024-10-10 22:46:55,532 - INFO - App started successfully!
+2024-10-10 22:46:55,534 - INFO - Database connected successfully!
+2024-10-10 22:46:55,534 - INFO - Started server process [17228]
+2024-10-10 22:46:55,534 - INFO - Waiting for application startup.
+2024-10-10 22:46:55,535 - INFO - Application startup complete.
+2024-10-10 22:47:04,375 - INFO - Shutting down
+2024-10-10 22:47:04,477 - INFO - Waiting for application shutdown.
+2024-10-10 22:47:04,477 - INFO - Application shutdown complete.
+2024-10-10 22:47:04,478 - INFO - Finished server process [17228]
+2024-10-10 22:47:17,470 - INFO - App started successfully!
+2024-10-10 22:47:17,472 - INFO - Database connected successfully!
+2024-10-10 22:47:17,472 - INFO - Started server process [17375]
+2024-10-10 22:47:17,473 - INFO - Waiting for application startup.
+2024-10-10 22:47:17,473 - INFO - Application startup complete.
+2024-10-10 22:47:18,881 - INFO - App started successfully!
+2024-10-10 22:47:18,882 - INFO - Database connected successfully!
+2024-10-10 22:47:18,883 - INFO - Started server process [17410]
+2024-10-10 22:47:18,883 - INFO - Waiting for application startup.
+2024-10-10 22:47:18,883 - INFO - Application startup complete.
+2024-10-10 22:47:43,587 - INFO - Shutting down
+2024-10-10 22:47:43,688 - INFO - Waiting for application shutdown.
+2024-10-10 22:47:43,689 - INFO - Application shutdown complete.
+2024-10-10 22:47:43,689 - INFO - Finished server process [17410]
+2024-10-10 22:47:45,647 - INFO - App started successfully!
+2024-10-10 22:47:45,648 - INFO - Database connected successfully!
+2024-10-10 22:47:45,649 - INFO - Started server process [17486]
+2024-10-10 22:47:45,649 - INFO - Waiting for application startup.
+2024-10-10 22:47:45,650 - INFO - Application startup complete.
+2024-10-10 22:47:48,326 - INFO - App started successfully!
+2024-10-10 22:47:48,329 - INFO - Database connected successfully!
+2024-10-10 22:47:48,330 - INFO - Started server process [17512]
+2024-10-10 22:47:48,330 - INFO - Waiting for application startup.
+2024-10-10 22:47:48,331 - INFO - Application startup complete.
+2024-10-10 22:47:50,617 - INFO - App started successfully!
+2024-10-10 22:47:50,620 - INFO - Database connected successfully!
+2024-10-10 22:47:50,621 - INFO - Started server process [17528]
+2024-10-10 22:47:50,621 - INFO - Waiting for application startup.
+2024-10-10 22:47:50,622 - INFO - Application startup complete.
+2024-10-10 22:47:54,745 - INFO - Shutting down
+2024-10-10 22:47:54,846 - INFO - Waiting for application shutdown.
+2024-10-10 22:47:54,847 - INFO - Application shutdown complete.
+2024-10-10 22:47:54,848 - INFO - Finished server process [17528]
+2024-10-10 22:47:56,403 - INFO - App started successfully!
+2024-10-10 22:47:56,404 - INFO - Database connected successfully!
+2024-10-10 22:47:56,405 - INFO - Started server process [17578]
+2024-10-10 22:47:56,405 - INFO - Waiting for application startup.
+2024-10-10 22:47:56,405 - INFO - Application startup complete.
+2024-10-10 22:48:25,963 - INFO - BEGIN (implicit)
+2024-10-10 22:48:25,968 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 22:48:25,968 - INFO - [generated in 0.00074s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 22:48:25,974 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 22:48:26,341 - INFO - INSERT INTO users (id, first_name, last_name, email, password, is_active) VALUES (%(id)s::UUID, %(first_name)s, %(last_name)s, %(email)s, %(password)s, %(is_active)s) RETURNING users.created_at, users.updated_at
+2024-10-10 22:48:26,342 - INFO - [generated in 0.00085s] {'id': UUID('5aa71425-a4e8-4a98-ba03-3136ec9a67b6'), 'first_name': 'Samuel22', 'last_name': 'Wakumelo22', 'email': 'largemichaels094@gmail.com', 'password': '$2b$12$j84cyiTON0RvKQsZyHUcM.U8WKatXb/AaZvz2jloqYIegxbsVqItO', 'is_active': False}
+2024-10-10 22:48:26,344 - INFO - COMMIT
+2024-10-10 22:48:26,351 - INFO - BEGIN (implicit)
+2024-10-10 22:48:26,354 - INFO - SELECT users.id, users.first_name, users.last_name, users.email, users.password, users.created_at, users.updated_at, users.is_active 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID
+2024-10-10 22:48:26,355 - INFO - [generated in 0.00162s] {'pk_1': UUID('5aa71425-a4e8-4a98-ba03-3136ec9a67b6')}
+2024-10-10 22:48:29,694 - INFO - ROLLBACK
+2024-10-10 22:48:59,889 - INFO - BEGIN (implicit)
+2024-10-10 22:48:59,890 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 22:48:59,891 - INFO - [cached since 33.92s ago] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 22:48:59,895 - INFO - UPDATE users SET updated_at=now(), is_active=%(is_active)s WHERE users.id = %(users_id)s::UUID
+2024-10-10 22:48:59,896 - INFO - [generated in 0.00055s] {'is_active': True, 'users_id': UUID('5aa71425-a4e8-4a98-ba03-3136ec9a67b6')}
+2024-10-10 22:48:59,898 - INFO - COMMIT
+2024-10-10 22:48:59,906 - INFO - BEGIN (implicit)
+2024-10-10 22:48:59,912 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID
+2024-10-10 22:48:59,913 - INFO - [generated in 0.00141s] {'pk_1': UUID('5aa71425-a4e8-4a98-ba03-3136ec9a67b6')}
+2024-10-10 22:48:59,918 - INFO - ROLLBACK
+2024-10-10 22:51:25,993 - INFO - Shutting down
+2024-10-10 22:51:26,095 - INFO - Waiting for application shutdown.
+2024-10-10 22:51:26,098 - INFO - Application shutdown complete.
+2024-10-10 22:51:26,099 - INFO - Finished server process [17578]
+2024-10-10 22:51:28,539 - INFO - App started successfully!
+2024-10-10 22:51:28,540 - INFO - Database connected successfully!
+2024-10-10 22:51:28,541 - INFO - Started server process [17979]
+2024-10-10 22:51:28,541 - INFO - Waiting for application startup.
+2024-10-10 22:51:28,541 - INFO - Application startup complete.
+2024-10-10 22:51:42,497 - INFO - Shutting down
+2024-10-10 22:51:42,598 - INFO - Waiting for application shutdown.
+2024-10-10 22:51:42,598 - INFO - Application shutdown complete.
+2024-10-10 22:51:42,599 - INFO - Finished server process [17979]
+2024-10-10 22:51:44,231 - INFO - App started successfully!
+2024-10-10 22:51:44,236 - INFO - Database connected successfully!
+2024-10-10 22:51:44,238 - INFO - Started server process [18089]
+2024-10-10 22:51:44,238 - INFO - Waiting for application startup.
+2024-10-10 22:51:44,239 - INFO - Application startup complete.
+2024-10-10 22:51:44,945 - INFO - Shutting down
+2024-10-10 22:51:45,046 - INFO - Waiting for application shutdown.
+2024-10-10 22:51:45,047 - INFO - Application shutdown complete.
+2024-10-10 22:51:45,047 - INFO - Finished server process [18089]
+2024-10-10 22:51:47,495 - INFO - App started successfully!
+2024-10-10 22:51:47,496 - INFO - Database connected successfully!
+2024-10-10 22:51:47,497 - INFO - Started server process [18120]
+2024-10-10 22:51:47,497 - INFO - Waiting for application startup.
+2024-10-10 22:51:47,497 - INFO - Application startup complete.
+2024-10-10 22:51:49,048 - INFO - App started successfully!
+2024-10-10 22:51:49,049 - INFO - Database connected successfully!
+2024-10-10 22:51:49,050 - INFO - Started server process [18127]
+2024-10-10 22:51:49,050 - INFO - Waiting for application startup.
+2024-10-10 22:51:49,050 - INFO - Application startup complete.
+2024-10-10 22:51:51,864 - INFO - Shutting down
+2024-10-10 22:51:51,966 - INFO - Waiting for application shutdown.
+2024-10-10 22:51:51,967 - INFO - Application shutdown complete.
+2024-10-10 22:51:51,968 - INFO - Finished server process [18127]
+2024-10-10 22:51:53,534 - INFO - App started successfully!
+2024-10-10 22:51:53,535 - INFO - Database connected successfully!
+2024-10-10 22:51:53,536 - INFO - Started server process [18161]
+2024-10-10 22:51:53,536 - INFO - Waiting for application startup.
+2024-10-10 22:51:53,537 - INFO - Application startup complete.
+2024-10-10 22:57:07,261 - INFO - Shutting down
+2024-10-10 22:57:07,362 - INFO - Waiting for application shutdown.
+2024-10-10 22:57:07,363 - INFO - Application shutdown complete.
+2024-10-10 22:57:07,363 - INFO - Finished server process [18161]
+2024-10-10 22:57:08,900 - INFO - App started successfully!
+2024-10-10 22:57:08,902 - INFO - Database connected successfully!
+2024-10-10 22:57:08,902 - INFO - Started server process [18554]
+2024-10-10 22:57:08,902 - INFO - Waiting for application startup.
+2024-10-10 22:57:08,903 - INFO - Application startup complete.
+2024-10-10 22:57:19,350 - INFO - Shutting down
+2024-10-10 22:57:19,451 - INFO - Waiting for application shutdown.
+2024-10-10 22:57:19,451 - INFO - Application shutdown complete.
+2024-10-10 22:57:19,452 - INFO - Finished server process [18554]
+2024-10-10 22:57:21,518 - INFO - App started successfully!
+2024-10-10 22:57:21,519 - INFO - Database connected successfully!
+2024-10-10 22:57:21,519 - INFO - Started server process [18622]
+2024-10-10 22:57:21,520 - INFO - Waiting for application startup.
+2024-10-10 22:57:21,520 - INFO - Application startup complete.
+2024-10-10 22:57:23,271 - INFO - App started successfully!
+2024-10-10 22:57:23,272 - INFO - Database connected successfully!
+2024-10-10 22:57:23,273 - INFO - Started server process [18645]
+2024-10-10 22:57:23,273 - INFO - Waiting for application startup.
+2024-10-10 22:57:23,273 - INFO - Application startup complete.
+2024-10-10 22:57:25,585 - INFO - Shutting down
+2024-10-10 22:57:25,686 - INFO - Waiting for application shutdown.
+2024-10-10 22:57:25,686 - INFO - Application shutdown complete.
+2024-10-10 22:57:25,687 - INFO - Finished server process [18645]
+2024-10-10 22:57:27,223 - INFO - App started successfully!
+2024-10-10 22:57:27,224 - INFO - Database connected successfully!
+2024-10-10 22:57:27,224 - INFO - Started server process [18680]
+2024-10-10 22:57:27,225 - INFO - Waiting for application startup.
+2024-10-10 22:57:27,225 - INFO - Application startup complete.
+2024-10-10 22:57:36,867 - INFO - Shutting down
+2024-10-10 22:57:36,969 - INFO - Waiting for application shutdown.
+2024-10-10 22:57:36,969 - INFO - Application shutdown complete.
+2024-10-10 22:57:36,970 - INFO - Finished server process [18680]
+2024-10-10 22:57:38,384 - INFO - App started successfully!
+2024-10-10 22:57:38,386 - INFO - Database connected successfully!
+2024-10-10 22:57:38,386 - INFO - Started server process [18742]
+2024-10-10 22:57:38,387 - INFO - Waiting for application startup.
+2024-10-10 22:57:38,387 - INFO - Application startup complete.
+2024-10-10 22:57:52,149 - INFO - Shutting down
+2024-10-10 22:57:52,251 - INFO - Waiting for application shutdown.
+2024-10-10 22:57:52,251 - INFO - Application shutdown complete.
+2024-10-10 22:57:52,252 - INFO - Finished server process [18742]
+2024-10-10 22:57:53,718 - INFO - App started successfully!
+2024-10-10 22:57:53,720 - INFO - Database connected successfully!
+2024-10-10 22:57:53,720 - INFO - Started server process [18807]
+2024-10-10 22:57:53,720 - INFO - Waiting for application startup.
+2024-10-10 22:57:53,721 - INFO - Application startup complete.
+2024-10-10 22:57:57,034 - INFO - Shutting down
+2024-10-10 22:57:57,135 - INFO - Waiting for application shutdown.
+2024-10-10 22:57:57,136 - INFO - Application shutdown complete.
+2024-10-10 22:57:57,136 - INFO - Finished server process [18807]
+2024-10-10 22:57:58,670 - INFO - App started successfully!
+2024-10-10 22:57:58,671 - INFO - Database connected successfully!
+2024-10-10 22:57:58,672 - INFO - Started server process [18845]
+2024-10-10 22:57:58,672 - INFO - Waiting for application startup.
+2024-10-10 22:57:58,672 - INFO - Application startup complete.
+2024-10-10 22:58:11,437 - INFO - Shutting down
+2024-10-10 22:58:11,539 - INFO - Waiting for application shutdown.
+2024-10-10 22:58:11,540 - INFO - Application shutdown complete.
+2024-10-10 22:58:11,540 - INFO - Finished server process [18845]
+2024-10-10 22:58:13,281 - INFO - App started successfully!
+2024-10-10 22:58:13,284 - INFO - Database connected successfully!
+2024-10-10 22:58:13,285 - INFO - Started server process [18917]
+2024-10-10 22:58:13,285 - INFO - Waiting for application startup.
+2024-10-10 22:58:13,286 - INFO - Application startup complete.
+2024-10-10 22:58:14,494 - INFO - Shutting down
+2024-10-10 22:58:14,596 - INFO - Waiting for application shutdown.
+2024-10-10 22:58:14,597 - INFO - Application shutdown complete.
+2024-10-10 22:58:14,597 - INFO - Finished server process [18917]
+2024-10-10 22:58:16,931 - INFO - App started successfully!
+2024-10-10 22:58:16,935 - INFO - Database connected successfully!
+2024-10-10 22:58:16,936 - INFO - Started server process [18947]
+2024-10-10 22:58:16,936 - INFO - Waiting for application startup.
+2024-10-10 22:58:16,937 - INFO - Application startup complete.
+2024-10-10 22:58:17,239 - INFO - Shutting down
+2024-10-10 22:58:17,340 - INFO - Waiting for application shutdown.
+2024-10-10 22:58:17,341 - INFO - Application shutdown complete.
+2024-10-10 22:58:17,341 - INFO - Finished server process [18947]
+2024-10-10 22:58:19,246 - INFO - App started successfully!
+2024-10-10 22:58:19,247 - INFO - Database connected successfully!
+2024-10-10 22:58:19,247 - INFO - Started server process [18960]
+2024-10-10 22:58:19,248 - INFO - Waiting for application startup.
+2024-10-10 22:58:19,248 - INFO - Application startup complete.
+2024-10-10 22:58:30,990 - INFO - Shutting down
+2024-10-10 22:58:31,092 - INFO - Waiting for application shutdown.
+2024-10-10 22:58:31,093 - INFO - Application shutdown complete.
+2024-10-10 22:58:31,093 - INFO - Finished server process [18960]
+2024-10-10 22:58:32,837 - INFO - App started successfully!
+2024-10-10 22:58:32,839 - INFO - Database connected successfully!
+2024-10-10 22:58:32,839 - INFO - Started server process [19024]
+2024-10-10 22:58:32,840 - INFO - Waiting for application startup.
+2024-10-10 22:58:32,840 - INFO - Application startup complete.
+2024-10-10 22:58:54,050 - INFO - Shutting down
+2024-10-10 22:58:54,151 - INFO - Waiting for application shutdown.
+2024-10-10 22:58:54,151 - INFO - Application shutdown complete.
+2024-10-10 22:58:54,152 - INFO - Finished server process [19024]
+2024-10-10 22:58:57,411 - INFO - App started successfully!
+2024-10-10 22:58:57,413 - INFO - Database connected successfully!
+2024-10-10 22:58:57,413 - INFO - Started server process [19134]
+2024-10-10 22:58:57,414 - INFO - Waiting for application startup.
+2024-10-10 22:58:57,414 - INFO - Application startup complete.
+2024-10-10 22:58:58,522 - INFO - Shutting down
+2024-10-10 22:58:58,622 - INFO - Waiting for application shutdown.
+2024-10-10 22:58:58,623 - INFO - Application shutdown complete.
+2024-10-10 22:58:58,623 - INFO - Finished server process [19134]
+2024-10-10 22:59:00,627 - INFO - App started successfully!
+2024-10-10 22:59:00,629 - INFO - Database connected successfully!
+2024-10-10 22:59:00,630 - INFO - Started server process [19270]
+2024-10-10 22:59:00,630 - INFO - Waiting for application startup.
+2024-10-10 22:59:00,631 - INFO - Application startup complete.
+2024-10-10 22:59:07,064 - INFO - Shutting down
+2024-10-10 22:59:07,165 - INFO - Waiting for application shutdown.
+2024-10-10 22:59:07,166 - INFO - Application shutdown complete.
+2024-10-10 22:59:07,166 - INFO - Finished server process [19270]
+2024-10-10 22:59:08,752 - INFO - App started successfully!
+2024-10-10 22:59:08,753 - INFO - Database connected successfully!
+2024-10-10 22:59:08,754 - INFO - Started server process [19337]
+2024-10-10 22:59:08,754 - INFO - Waiting for application startup.
+2024-10-10 22:59:08,755 - INFO - Application startup complete.
+2024-10-10 22:59:14,888 - INFO - Shutting down
+2024-10-10 22:59:14,989 - INFO - Waiting for application shutdown.
+2024-10-10 22:59:14,990 - INFO - Application shutdown complete.
+2024-10-10 22:59:14,990 - INFO - Finished server process [19337]
+2024-10-10 22:59:17,812 - INFO - App started successfully!
+2024-10-10 22:59:17,816 - INFO - Database connected successfully!
+2024-10-10 22:59:17,818 - INFO - Started server process [19375]
+2024-10-10 22:59:17,820 - INFO - Waiting for application startup.
+2024-10-10 22:59:17,820 - INFO - Application startup complete.
+2024-10-10 22:59:19,788 - INFO - App started successfully!
+2024-10-10 22:59:19,790 - INFO - Database connected successfully!
+2024-10-10 22:59:19,790 - INFO - Started server process [19404]
+2024-10-10 22:59:19,790 - INFO - Waiting for application startup.
+2024-10-10 22:59:19,791 - INFO - Application startup complete.
+2024-10-10 22:59:28,330 - INFO - Shutting down
+2024-10-10 22:59:28,431 - INFO - Waiting for application shutdown.
+2024-10-10 22:59:28,432 - INFO - Application shutdown complete.
+2024-10-10 22:59:28,432 - INFO - Finished server process [19404]
+2024-10-10 22:59:30,105 - INFO - App started successfully!
+2024-10-10 22:59:30,106 - INFO - Database connected successfully!
+2024-10-10 22:59:30,107 - INFO - Started server process [19449]
+2024-10-10 22:59:30,107 - INFO - Waiting for application startup.
+2024-10-10 22:59:30,107 - INFO - Application startup complete.
+2024-10-10 23:01:30,298 - INFO - BEGIN (implicit)
+2024-10-10 23:01:30,302 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:01:30,302 - INFO - [generated in 0.00050s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:01:30,306 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 23:01:30,668 - INFO - INSERT INTO users (id, first_name, last_name, email, password, is_active) VALUES (%(id)s::UUID, %(first_name)s, %(last_name)s, %(email)s, %(password)s, %(is_active)s) RETURNING users.created_at, users.updated_at
+2024-10-10 23:01:30,668 - INFO - [generated in 0.00057s] {'id': UUID('5631f196-af7f-4cea-8289-1f5409030eab'), 'first_name': 'Samuel22', 'last_name': 'Wakumelo22', 'email': 'largemichaels094@gmail.com', 'password': '$2b$12$fzC2aQuP7saokxNQ5mxW7uw3UzdznLbcpzS3zOSNUBav.L3eMICem', 'is_active': False}
+2024-10-10 23:01:30,671 - INFO - COMMIT
+2024-10-10 23:01:30,679 - INFO - BEGIN (implicit)
+2024-10-10 23:01:30,684 - INFO - SELECT users.id, users.first_name, users.last_name, users.email, users.password, users.created_at, users.updated_at, users.is_active 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID
+2024-10-10 23:01:30,685 - INFO - [generated in 0.00068s] {'pk_1': UUID('5631f196-af7f-4cea-8289-1f5409030eab')}
+2024-10-10 23:01:30,688 - INFO - ROLLBACK
+2024-10-10 23:01:30,691 - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/terminalnator/Client_portal/app/routers/user_routes.py", line 15, in signup_endpoint
+    return await signup(db, user)
+  File "/home/terminalnator/Client_portal/app/services/user_services.py", line 49, in signup
+    await email_service.handle_email_verification(db, user.email)
+  File "/home/terminalnator/Client_portal/app/services/email_services.py", line 57, in handle_email_verification
+    verification_token = create_verification_token(data={"email": email})
+  File "/home/terminalnator/Client_portal/app/security/mail_token.py", line 25, in create_verification_token
+    expire = datetime.now() + timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
+AttributeError: module 'app.config.settings' has no attribute 'EMAIL_TOKEN_EXPIRE_MINUTES'
+2024-10-10 23:02:24,416 - INFO - Shutting down
+2024-10-10 23:02:24,517 - INFO - Waiting for application shutdown.
+2024-10-10 23:02:24,517 - INFO - Application shutdown complete.
+2024-10-10 23:02:24,517 - INFO - Finished server process [19449]
+2024-10-10 23:02:53,472 - INFO - App started successfully!
+2024-10-10 23:02:53,473 - INFO - Database connected successfully!
+2024-10-10 23:02:53,474 - INFO - Started server process [19990]
+2024-10-10 23:02:53,474 - INFO - Waiting for application startup.
+2024-10-10 23:02:53,474 - INFO - Application startup complete.
+2024-10-10 23:03:11,535 - INFO - BEGIN (implicit)
+2024-10-10 23:03:11,538 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:03:11,539 - INFO - [generated in 0.00056s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:03:11,545 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 23:03:11,911 - INFO - INSERT INTO users (id, first_name, last_name, email, password, is_active) VALUES (%(id)s::UUID, %(first_name)s, %(last_name)s, %(email)s, %(password)s, %(is_active)s) RETURNING users.created_at, users.updated_at
+2024-10-10 23:03:11,911 - INFO - [generated in 0.00065s] {'id': UUID('04ccaeec-54b3-4f77-b7bf-ea1d126bbf67'), 'first_name': 'Samuel22', 'last_name': 'Wakumelo22', 'email': 'largemichaels094@gmail.com', 'password': '$2b$12$BJbj415UShGKqmg0gLS38O9TP02AR02w2o7MTrAn0rQJ.me8fRdh2', 'is_active': False}
+2024-10-10 23:03:11,913 - INFO - COMMIT
+2024-10-10 23:03:11,922 - INFO - BEGIN (implicit)
+2024-10-10 23:03:11,926 - INFO - SELECT users.id, users.first_name, users.last_name, users.email, users.password, users.created_at, users.updated_at, users.is_active 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID
+2024-10-10 23:03:11,926 - INFO - [generated in 0.00054s] {'pk_1': UUID('04ccaeec-54b3-4f77-b7bf-ea1d126bbf67')}
+2024-10-10 23:03:14,885 - INFO - ROLLBACK
+2024-10-10 23:03:55,026 - INFO - Shutting down
+2024-10-10 23:03:55,128 - INFO - Waiting for application shutdown.
+2024-10-10 23:03:55,128 - INFO - Application shutdown complete.
+2024-10-10 23:03:55,129 - INFO - Finished server process [19990]
+2024-10-10 23:05:45,369 - INFO - App started successfully!
+2024-10-10 23:05:45,370 - INFO - Database connected successfully!
+2024-10-10 23:05:45,371 - INFO - Started server process [20718]
+2024-10-10 23:05:45,371 - INFO - Waiting for application startup.
+2024-10-10 23:05:45,372 - INFO - Application startup complete.
+2024-10-10 23:06:30,765 - INFO - Shutting down
+2024-10-10 23:06:30,866 - INFO - Waiting for application shutdown.
+2024-10-10 23:06:30,866 - INFO - Application shutdown complete.
+2024-10-10 23:06:30,866 - INFO - Finished server process [20718]
+2024-10-10 23:09:54,418 - INFO - App started successfully!
+2024-10-10 23:09:54,419 - INFO - Database connected successfully!
+2024-10-10 23:09:54,420 - INFO - Started server process [21365]
+2024-10-10 23:09:54,420 - INFO - Waiting for application startup.
+2024-10-10 23:09:54,420 - INFO - Application startup complete.
+2024-10-10 23:09:56,631 - INFO - Shutting down
+2024-10-10 23:09:56,732 - INFO - Waiting for application shutdown.
+2024-10-10 23:09:56,733 - INFO - Application shutdown complete.
+2024-10-10 23:09:56,733 - INFO - Finished server process [21365]
+2024-10-10 23:10:01,280 - INFO - App started successfully!
+2024-10-10 23:10:01,282 - INFO - Database connected successfully!
+2024-10-10 23:10:01,282 - INFO - Started server process [21412]
+2024-10-10 23:10:01,283 - INFO - Waiting for application startup.
+2024-10-10 23:10:01,283 - INFO - Application startup complete.
+2024-10-10 23:10:20,994 - INFO - BEGIN (implicit)
+2024-10-10 23:10:20,998 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:10:20,998 - INFO - [generated in 0.00052s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:10:21,007 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 23:10:21,362 - INFO - INSERT INTO users (id, first_name, last_name, email, password, is_active) VALUES (%(id)s::UUID, %(first_name)s, %(last_name)s, %(email)s, %(password)s, %(is_active)s) RETURNING users.created_at, users.updated_at
+2024-10-10 23:10:21,363 - INFO - [generated in 0.00049s] {'id': UUID('01c0f974-fed8-4574-8b22-0c2ec92feb03'), 'first_name': 'Samuel22', 'last_name': 'Wakumelo22', 'email': 'largemichaels094@gmail.com', 'password': '$2b$12$pDRrjFyvNfxi7Taqj/Mhj.4YP8VHC.jwXSQ69ohsLwdFEBwoQn7kC', 'is_active': False}
+2024-10-10 23:10:21,365 - INFO - COMMIT
+2024-10-10 23:10:21,370 - INFO - BEGIN (implicit)
+2024-10-10 23:10:21,372 - INFO - SELECT users.id, users.first_name, users.last_name, users.email, users.password, users.created_at, users.updated_at, users.is_active 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID
+2024-10-10 23:10:21,373 - INFO - [generated in 0.00062s] {'pk_1': UUID('01c0f974-fed8-4574-8b22-0c2ec92feb03')}
+2024-10-10 23:10:24,130 - INFO - ROLLBACK
+2024-10-10 23:11:17,697 - INFO - BEGIN (implicit)
+2024-10-10 23:11:17,698 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:11:17,698 - INFO - [cached since 56.7s ago] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:11:20,727 - INFO - ROLLBACK
+2024-10-10 23:12:11,750 - INFO - Shutting down
+2024-10-10 23:12:11,852 - INFO - Waiting for application shutdown.
+2024-10-10 23:12:11,853 - INFO - Application shutdown complete.
+2024-10-10 23:12:11,853 - INFO - Finished server process [21412]
+2024-10-10 23:12:14,761 - INFO - App started successfully!
+2024-10-10 23:12:14,762 - INFO - Database connected successfully!
+2024-10-10 23:12:14,762 - INFO - Started server process [21990]
+2024-10-10 23:12:14,762 - INFO - Waiting for application startup.
+2024-10-10 23:12:14,763 - INFO - Application startup complete.
+2024-10-10 23:12:16,461 - INFO - App started successfully!
+2024-10-10 23:12:16,462 - INFO - Database connected successfully!
+2024-10-10 23:12:16,463 - INFO - Started server process [22025]
+2024-10-10 23:12:16,463 - INFO - Waiting for application startup.
+2024-10-10 23:12:16,463 - INFO - Application startup complete.
+2024-10-10 23:12:20,283 - INFO - Shutting down
+2024-10-10 23:12:20,384 - INFO - Waiting for application shutdown.
+2024-10-10 23:12:20,384 - INFO - Application shutdown complete.
+2024-10-10 23:12:20,385 - INFO - Finished server process [22025]
+2024-10-10 23:12:22,824 - INFO - App started successfully!
+2024-10-10 23:12:22,826 - INFO - Database connected successfully!
+2024-10-10 23:12:22,827 - INFO - Started server process [22062]
+2024-10-10 23:12:22,827 - INFO - Waiting for application startup.
+2024-10-10 23:12:22,828 - INFO - Application startup complete.
+2024-10-10 23:12:25,211 - INFO - App started successfully!
+2024-10-10 23:12:25,212 - INFO - Database connected successfully!
+2024-10-10 23:12:25,213 - INFO - Started server process [22075]
+2024-10-10 23:12:25,213 - INFO - Waiting for application startup.
+2024-10-10 23:12:25,214 - INFO - Application startup complete.
+2024-10-10 23:12:27,817 - INFO - BEGIN (implicit)
+2024-10-10 23:12:27,828 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:12:27,830 - INFO - [generated in 0.00136s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:12:30,602 - INFO - ROLLBACK
+2024-10-10 23:13:51,407 - INFO - Shutting down
+2024-10-10 23:13:51,508 - INFO - Waiting for application shutdown.
+2024-10-10 23:13:51,511 - INFO - Application shutdown complete.
+2024-10-10 23:13:51,511 - INFO - Finished server process [22075]
+2024-10-10 23:13:57,958 - INFO - App started successfully!
+2024-10-10 23:13:57,961 - INFO - Database connected successfully!
+2024-10-10 23:13:57,963 - INFO - Started server process [22367]
+2024-10-10 23:13:57,963 - INFO - Waiting for application startup.
+2024-10-10 23:13:57,966 - INFO - Application startup complete.
+2024-10-10 23:14:00,649 - INFO - App started successfully!
+2024-10-10 23:14:00,651 - INFO - Database connected successfully!
+2024-10-10 23:14:00,652 - INFO - Started server process [22387]
+2024-10-10 23:14:00,652 - INFO - Waiting for application startup.
+2024-10-10 23:14:00,652 - INFO - Application startup complete.
+2024-10-10 23:14:02,237 - INFO - App started successfully!
+2024-10-10 23:14:02,239 - INFO - Database connected successfully!
+2024-10-10 23:14:02,240 - INFO - Started server process [22410]
+2024-10-10 23:14:02,240 - INFO - Waiting for application startup.
+2024-10-10 23:14:02,241 - INFO - Application startup complete.
+2024-10-10 23:15:51,079 - INFO - Shutting down
+2024-10-10 23:15:51,180 - INFO - Waiting for application shutdown.
+2024-10-10 23:15:51,181 - INFO - Application shutdown complete.
+2024-10-10 23:15:51,181 - INFO - Finished server process [22410]
+2024-10-10 23:15:53,811 - INFO - App started successfully!
+2024-10-10 23:15:53,813 - INFO - Database connected successfully!
+2024-10-10 23:15:53,814 - INFO - Started server process [22691]
+2024-10-10 23:15:53,814 - INFO - Waiting for application startup.
+2024-10-10 23:15:53,815 - INFO - Application startup complete.
+2024-10-10 23:15:57,052 - INFO - BEGIN (implicit)
+2024-10-10 23:15:57,061 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:15:57,062 - INFO - [generated in 0.00096s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:15:57,068 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 23:15:57,440 - INFO - UPDATE users SET password=%(password)s, updated_at=now() WHERE users.id = %(users_id)s::UUID
+2024-10-10 23:15:57,440 - INFO - [generated in 0.00061s] {'password': '$2b$12$unyVhmBewiuRHZ1towDUKuWa4wpPFyZgNGRN.0dbdVW2FLrBz1uOC', 'users_id': UUID('01c0f974-fed8-4574-8b22-0c2ec92feb03')}
+2024-10-10 23:15:57,442 - INFO - COMMIT
+2024-10-10 23:18:30,953 - INFO - Shutting down
+2024-10-10 23:18:31,055 - INFO - Waiting for application shutdown.
+2024-10-10 23:18:31,056 - INFO - Application shutdown complete.
+2024-10-10 23:18:31,056 - INFO - Finished server process [22691]
+2024-10-10 23:18:33,211 - INFO - App started successfully!
+2024-10-10 23:18:33,212 - INFO - Database connected successfully!
+2024-10-10 23:18:33,212 - INFO - Started server process [23052]
+2024-10-10 23:18:33,213 - INFO - Waiting for application startup.
+2024-10-10 23:18:33,213 - INFO - Application startup complete.
+2024-10-10 23:19:01,433 - INFO - Shutting down
+2024-10-10 23:19:01,535 - INFO - Waiting for application shutdown.
+2024-10-10 23:19:01,535 - INFO - Application shutdown complete.
+2024-10-10 23:19:01,536 - INFO - Finished server process [23052]
+2024-10-10 23:19:03,770 - INFO - App started successfully!
+2024-10-10 23:19:03,771 - INFO - Database connected successfully!
+2024-10-10 23:19:03,772 - INFO - Started server process [23169]
+2024-10-10 23:19:03,772 - INFO - Waiting for application startup.
+2024-10-10 23:19:03,772 - INFO - Application startup complete.
+2024-10-10 23:19:07,092 - INFO - Shutting down
+2024-10-10 23:19:07,193 - INFO - Waiting for application shutdown.
+2024-10-10 23:19:07,194 - INFO - Application shutdown complete.
+2024-10-10 23:19:07,194 - INFO - Finished server process [23169]
+2024-10-10 23:19:09,273 - INFO - App started successfully!
+2024-10-10 23:19:09,276 - INFO - Database connected successfully!
+2024-10-10 23:19:09,278 - INFO - Started server process [23212]
+2024-10-10 23:19:09,279 - INFO - Waiting for application startup.
+2024-10-10 23:19:09,280 - INFO - Application startup complete.
+2024-10-10 23:19:18,928 - INFO - Shutting down
+2024-10-10 23:19:19,029 - INFO - Waiting for application shutdown.
+2024-10-10 23:19:19,029 - INFO - Application shutdown complete.
+2024-10-10 23:19:19,030 - INFO - Finished server process [23212]
+2024-10-10 23:19:20,911 - INFO - App started successfully!
+2024-10-10 23:19:20,912 - INFO - Database connected successfully!
+2024-10-10 23:19:20,913 - INFO - Started server process [23295]
+2024-10-10 23:19:20,913 - INFO - Waiting for application startup.
+2024-10-10 23:19:20,913 - INFO - Application startup complete.
+2024-10-10 23:19:31,655 - INFO - Shutting down
+2024-10-10 23:19:31,756 - INFO - Waiting for application shutdown.
+2024-10-10 23:19:31,757 - INFO - Application shutdown complete.
+2024-10-10 23:19:31,757 - INFO - Finished server process [23295]
+2024-10-10 23:19:34,117 - INFO - App started successfully!
+2024-10-10 23:19:34,119 - INFO - Database connected successfully!
+2024-10-10 23:19:34,119 - INFO - Started server process [23366]
+2024-10-10 23:19:34,120 - INFO - Waiting for application startup.
+2024-10-10 23:19:34,121 - INFO - Application startup complete.
+2024-10-10 23:19:35,630 - INFO - Shutting down
+2024-10-10 23:19:35,733 - INFO - Waiting for application shutdown.
+2024-10-10 23:19:35,734 - INFO - Application shutdown complete.
+2024-10-10 23:19:35,734 - INFO - Finished server process [23366]
+2024-10-10 23:19:39,074 - INFO - App started successfully!
+2024-10-10 23:19:39,076 - INFO - Database connected successfully!
+2024-10-10 23:19:39,077 - INFO - Started server process [23413]
+2024-10-10 23:19:39,077 - INFO - Waiting for application startup.
+2024-10-10 23:19:39,078 - INFO - Application startup complete.
+2024-10-10 23:19:41,447 - INFO - App started successfully!
+2024-10-10 23:19:41,449 - INFO - Database connected successfully!
+2024-10-10 23:19:41,449 - INFO - Started server process [23450]
+2024-10-10 23:19:41,450 - INFO - Waiting for application startup.
+2024-10-10 23:19:41,450 - INFO - Application startup complete.
+2024-10-10 23:24:17,413 - INFO - Shutting down
+2024-10-10 23:24:17,515 - INFO - Waiting for application shutdown.
+2024-10-10 23:24:17,515 - INFO - Application shutdown complete.
+2024-10-10 23:24:17,516 - INFO - Finished server process [23450]
+2024-10-10 23:24:19,622 - INFO - App started successfully!
+2024-10-10 23:24:19,623 - INFO - Database connected successfully!
+2024-10-10 23:24:19,623 - INFO - Started server process [23954]
+2024-10-10 23:24:19,623 - INFO - Waiting for application startup.
+2024-10-10 23:24:19,624 - INFO - Application startup complete.
+2024-10-10 23:24:53,583 - INFO - BEGIN (implicit)
+2024-10-10 23:24:53,599 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:24:53,600 - INFO - [generated in 0.00102s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:24:56,471 - INFO - ROLLBACK
+2024-10-10 23:33:30,505 - INFO - Shutting down
+2024-10-10 23:33:30,607 - INFO - Waiting for application shutdown.
+2024-10-10 23:33:30,608 - INFO - Application shutdown complete.
+2024-10-10 23:33:30,609 - INFO - Finished server process [23954]
+2024-10-10 23:33:33,534 - INFO - App started successfully!
+2024-10-10 23:33:33,535 - INFO - Database connected successfully!
+2024-10-10 23:33:33,536 - INFO - Started server process [25343]
+2024-10-10 23:33:33,536 - INFO - Waiting for application startup.
+2024-10-10 23:33:33,537 - INFO - Application startup complete.
+2024-10-10 23:33:36,069 - INFO - App started successfully!
+2024-10-10 23:33:36,070 - INFO - Database connected successfully!
+2024-10-10 23:33:36,071 - INFO - Started server process [25373]
+2024-10-10 23:33:36,071 - INFO - Waiting for application startup.
+2024-10-10 23:33:36,072 - INFO - Application startup complete.
+2024-10-10 23:34:09,076 - INFO - BEGIN (implicit)
+2024-10-10 23:34:09,084 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:34:09,084 - INFO - [generated in 0.00058s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:34:11,725 - INFO - ROLLBACK
+2024-10-10 23:36:07,276 - INFO - Shutting down
+2024-10-10 23:36:07,377 - INFO - Waiting for application shutdown.
+2024-10-10 23:36:07,377 - INFO - Application shutdown complete.
+2024-10-10 23:36:07,378 - INFO - Finished server process [25373]
+2024-10-10 23:36:10,079 - INFO - App started successfully!
+2024-10-10 23:36:10,081 - INFO - Database connected successfully!
+2024-10-10 23:36:10,081 - INFO - Started server process [25738]
+2024-10-10 23:36:10,082 - INFO - Waiting for application startup.
+2024-10-10 23:36:10,082 - INFO - Application startup complete.
+2024-10-10 23:37:39,979 - INFO - BEGIN (implicit)
+2024-10-10 23:37:39,985 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:37:39,986 - INFO - [generated in 0.00138s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:37:39,995 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-10-10 23:37:40,402 - INFO - UPDATE users SET password=%(password)s, updated_at=now() WHERE users.id = %(users_id)s::UUID
+2024-10-10 23:37:40,402 - INFO - [generated in 0.00066s] {'password': '$2b$12$UWufgmwdCmpp/IujUGy8bejQWlNyLBK2OKgJ8IGSm6SRG6P0HxTwi', 'users_id': UUID('01c0f974-fed8-4574-8b22-0c2ec92feb03')}
+2024-10-10 23:37:40,407 - INFO - COMMIT
+2024-10-10 23:41:26,379 - INFO - Shutting down
+2024-10-10 23:41:26,482 - INFO - Waiting for application shutdown.
+2024-10-10 23:41:26,483 - INFO - Application shutdown complete.
+2024-10-10 23:41:26,483 - INFO - Finished server process [25738]
+2024-10-10 23:41:29,729 - INFO - App started successfully!
+2024-10-10 23:41:29,730 - INFO - Database connected successfully!
+2024-10-10 23:41:29,731 - INFO - Started server process [26410]
+2024-10-10 23:41:29,732 - INFO - Waiting for application startup.
+2024-10-10 23:41:29,732 - INFO - Application startup complete.
+2024-10-10 23:42:02,139 - INFO - BEGIN (implicit)
+2024-10-10 23:42:02,146 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:42:02,147 - INFO - [generated in 0.00112s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:42:05,247 - INFO - ROLLBACK
+2024-10-10 23:44:47,726 - INFO - Shutting down
+2024-10-10 23:44:47,827 - INFO - Waiting for application shutdown.
+2024-10-10 23:44:47,829 - INFO - Application shutdown complete.
+2024-10-10 23:44:47,829 - INFO - Finished server process [26410]
+2024-10-10 23:44:50,565 - INFO - App started successfully!
+2024-10-10 23:44:50,567 - INFO - Database connected successfully!
+2024-10-10 23:44:50,567 - INFO - Started server process [26847]
+2024-10-10 23:44:50,568 - INFO - Waiting for application startup.
+2024-10-10 23:44:50,568 - INFO - Application startup complete.
+2024-10-10 23:45:22,445 - INFO - BEGIN (implicit)
+2024-10-10 23:45:22,449 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:45:22,449 - INFO - [generated in 0.00048s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:45:22,456 - INFO - ROLLBACK
+2024-10-10 23:45:22,461 - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/terminalnator/Client_portal/app/routers/email_routes.py", line 74, in request_password_reset
+    await PasswordResetMailService.send_reset_password_email(user.email, token)
+TypeError: PasswordResetMailService.send_reset_password_email() missing 2 required positional arguments: 'token' and 'first_name'
+2024-10-10 23:47:09,949 - INFO - Shutting down
+2024-10-10 23:47:10,051 - INFO - Waiting for application shutdown.
+2024-10-10 23:47:10,052 - INFO - Application shutdown complete.
+2024-10-10 23:47:10,052 - INFO - Finished server process [26847]
+2024-10-10 23:47:12,351 - INFO - App started successfully!
+2024-10-10 23:47:12,353 - INFO - Database connected successfully!
+2024-10-10 23:47:12,353 - INFO - Started server process [27201]
+2024-10-10 23:47:12,353 - INFO - Waiting for application startup.
+2024-10-10 23:47:12,354 - INFO - Application startup complete.
+2024-10-10 23:47:38,270 - INFO - BEGIN (implicit)
+2024-10-10 23:47:38,282 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:47:38,284 - INFO - [generated in 0.00194s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:47:38,289 - INFO - ROLLBACK
+2024-10-10 23:47:38,292 - ERROR - Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 406, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+  File "/home/terminalnator/Client_portal/venv/lib/python3.10/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/terminalnator/Client_portal/app/routers/email_routes.py", line 77, in request_password_reset
+    await PasswordResetMailService.send_reset_password_email(user.email, token, user.first_name)
+TypeError: PasswordResetMailService.send_reset_password_email() missing 1 required positional argument: 'first_name'
+2024-10-10 23:50:11,079 - INFO - Shutting down
+2024-10-10 23:50:11,180 - INFO - Waiting for application shutdown.
+2024-10-10 23:50:11,180 - INFO - Application shutdown complete.
+2024-10-10 23:50:11,180 - INFO - Finished server process [27201]
+2024-10-10 23:50:12,975 - INFO - App started successfully!
+2024-10-10 23:50:12,976 - INFO - Database connected successfully!
+2024-10-10 23:50:12,977 - INFO - Started server process [27680]
+2024-10-10 23:50:12,977 - INFO - Waiting for application startup.
+2024-10-10 23:50:12,978 - INFO - Application startup complete.
+2024-10-10 23:50:17,752 - INFO - BEGIN (implicit)
+2024-10-10 23:50:17,759 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:50:17,759 - INFO - [generated in 0.00093s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:50:21,083 - INFO - ROLLBACK
+2024-10-10 23:52:28,044 - INFO - Shutting down
+2024-10-10 23:52:28,145 - INFO - Waiting for application shutdown.
+2024-10-10 23:52:28,145 - INFO - Application shutdown complete.
+2024-10-10 23:52:28,146 - INFO - Finished server process [27680]
+2024-10-10 23:52:40,828 - INFO - App started successfully!
+2024-10-10 23:52:40,829 - INFO - Database connected successfully!
+2024-10-10 23:52:40,830 - INFO - Started server process [28447]
+2024-10-10 23:52:40,830 - INFO - Waiting for application startup.
+2024-10-10 23:52:40,832 - INFO - Application startup complete.
+2024-10-10 23:52:51,619 - INFO - BEGIN (implicit)
+2024-10-10 23:52:51,627 - INFO - SELECT users.id AS users_id, users.first_name AS users_first_name, users.last_name AS users_last_name, users.email AS users_email, users.password AS users_password, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.is_active AS users_is_active 
+FROM users 
+WHERE users.email = %(email_1)s 
+ LIMIT %(param_1)s
+2024-10-10 23:52:51,627 - INFO - [generated in 0.00062s] {'email_1': 'largemichaels094@gmail.com', 'param_1': 1}
+2024-10-10 23:52:54,645 - INFO - ROLLBACK
+2024-10-10 23:54:02,665 - INFO - Shutting down
+2024-10-10 23:54:02,766 - INFO - Waiting for application shutdown.
+2024-10-10 23:54:02,767 - INFO - Application shutdown complete.
+2024-10-10 23:54:02,767 - INFO - Finished server process [28447]

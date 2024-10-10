@@ -63,14 +63,6 @@ def include_routers(app: FastAPI):
 
 include_routers(app)
 
-
-
-
-
-
-
-
-
 def setup_logging():
     # Setup a file handler for logging
     file_handler = RotatingFileHandler("app.log", maxBytes=1024*1024*10, backupCount=5)
