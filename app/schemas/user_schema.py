@@ -66,3 +66,15 @@ class UserResponse(BaseModel):
     class Config:
         # Make sure Pydantic uses the correct types for serialization
         from_attributes = True
+
+class SignupResponse(BaseModel):
+    user: UserResponse
+    access_token: str
+    token_type: str
+
+class ResetPassword(BaseModel):
+    password: str
+
+class Email(BaseModel):
+    email: EmailStr
+
