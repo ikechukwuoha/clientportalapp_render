@@ -4,8 +4,6 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from pydantic import EmailStr
 
-
-
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.SMTP_USER,
     MAIL_PASSWORD=settings.SMTP_PASSWORD,
@@ -18,9 +16,7 @@ conf = ConnectionConfig(
     USE_CREDENTIALS=True,
 )
 
-SECRET_KEY = settings.SECRET_KEY
-ALGORITHM = settings.ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+
 
 class EmailService:
     def __init__(self):
@@ -28,17 +24,35 @@ class EmailService:
 
     def create_access_token(self, data: dict):
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now() + timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         return encoded_jwt
 
     async def send_verification_email(self, email: str, token: str):
+        # HTML email template with purple activation button on white background
+        html = f"""
+       <html>
+            <body style="background-color: #ffffff; font-family: Arial, sans-serif; padding: 20px;">
+                <div style="max-width: 600px; margin: 0 auto; text-align: center; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 10px; padding: 20px;">
+                    <h2 style="color: #4b0082;">Verify Your Email Address</h2>
+                    <p>Click the button below to verify your email address and activate your account:</p>
+                    <a href="http://localhost:8000/api/verify-email?token={token}" 
+                    style="display: inline-block; padding: 15px 25px; font-size: 16px; color: #ffffff; background-color: #6A0DAD; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+                        Activate Account
+                    </a>
+                    <p style="margin-top: 20px;">If the button above doesn't work, copy and paste the following link into your browser:</p>
+                    <p><a href="http://localhost:8000/api/verify-email?token={token}" style="color: #6A0DAD;">http://localhost:8000/verify-email?token={token}</a></p>
+                </div>
+            </body>
+        </html>
+        """
+
         message = MessageSchema(
             subject="Email Verification",
             recipients=[email],
-            body=f"Click the link to verify your email: http://localhost:8000/verify-email?token={token}",
-            subtype="html"
+            body=html,
+            subtype="html"  # Set subtype to HTML
         )
         await self.fm.send_message(message)
 

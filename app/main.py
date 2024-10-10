@@ -2,10 +2,10 @@ from contextlib import asynccontextmanager
 import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
-from app.routers.user_routes import router as user_router
-from app.routers.email_routes import router as email_router
+from app.routers import user_routes, email_routes
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+import importlib
 from logging.handlers import RotatingFileHandler
 import uvicorn
 from app.config.settings import settings
@@ -37,9 +37,38 @@ app.add_middleware(
 # Get route prefix from environment variables
 ROUTE_PREFIX = os.getenv("ROUTE_PREFIX")
 
-# Include Routers
-app.include_router(user_router, prefix=ROUTE_PREFIX)
-app.include_router(email_router, prefix=ROUTE_PREFIX)
+
+
+
+# # Include Routers
+# app.include_router(user_routes.router, prefix=ROUTE_PREFIX)
+# app.include_router(email_routes.router, prefix=ROUTE_PREFIX)
+# Load all routers from the router folder
+# Get the router folder path
+router_folder = os.path.join(os.path.dirname(__file__), "routers")
+
+def include_routers(app: FastAPI):
+    # Iterate through the router folder modules
+    for module_name in os.listdir(router_folder):
+        if module_name.endswith(".py") and module_name != "__init__.py":
+            # Import the router module
+            module_path = f"app.routers.{module_name[:-3]}"  # Remove .py extension
+            module = importlib.import_module(module_path)
+
+            # Check for 'router' attribute in the module
+            if hasattr(module, "router"):
+                router = getattr(module, "router")
+                # Include the router with a prefix if necessary
+                app.include_router(router, prefix=settings.ROUTE_PREFIX)
+
+include_routers(app)
+
+
+
+
+
+
+
 
 
 def setup_logging():
