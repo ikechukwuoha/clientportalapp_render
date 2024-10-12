@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    DOMAIN: str
+
     
     
     # New email configuration settings
@@ -20,8 +22,8 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str
     EMAIL_FROM: str
     EMAIL_TOKEN_EXPIRE_MINUTES: int
-    MAIL_STARTTLS: bool = True
-    MAIL_SSL_TLS: bool = False
+    MAIL_STARTTLS: bool = False
+    MAIL_SSL_TLS: bool = True
     
 
     # Other configurations

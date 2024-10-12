@@ -41,9 +41,16 @@ class UserCreate(BaseModel):
 
 
 class User(BaseModel):
-    id: int
-    name:str
-    email:str
+    id: UUID
+    first_name: str
+    last_name: str
+    email: EmailStr
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool
+    
+    class Config:
+        from_attributes = True
     
     
 
@@ -75,6 +82,15 @@ class SignupResponse(BaseModel):
 class ResetPassword(BaseModel):
     password: str
 
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    
+
+class PasswordResetConfirmModel(BaseModel):
+    new_password: str
+    
+    
+    
 class Email(BaseModel):
     email: EmailStr
 

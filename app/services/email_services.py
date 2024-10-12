@@ -24,14 +24,13 @@ class EmailService:
     def __init__(self):
         self.fm = FastMail(conf)
 
-
-
-    async def send_verification_email(self, email: str, token: str):
+    async def send_verification_email(self, email: str, token: str, first_name: str):
         # HTML email template with purple activation button on white background
         html = f"""
-       <html>
+        <html>
             <body style="background-color: #ffffff; font-family: Arial, sans-serif; padding: 20px;">
                 <div style="max-width: 600px; margin: 0 auto; text-align: center; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 10px; padding: 20px;">
+                    <h2 style="color: #4b0082;">Hello {first_name},</h2>
                     <h2 style="color: #4b0082;">Verify Your Email Address</h2>
                     <p>Click the button below to verify your email address and activate your account:</p>
                     <a href="http://localhost:8000/api/verify-email?token={token}" 
@@ -53,14 +52,17 @@ class EmailService:
         )
         await self.fm.send_message(message)
 
-    async def handle_email_verification(self, db, email):
+    async def handle_email_verification(self, db, email, first_name):
         verification_token = create_verification_token(data={"email": email})
-        await self.send_verification_email(email, verification_token)
+        await self.send_verification_email(email, verification_token, first_name)
+
         
         
         
 class PasswordResetMailService:
     async def send_reset_password_email(self, email: EmailStr, token: str, first_name: str):
+        # Use settings.DOMAIN to create the reset link dynamically
+        link = f"{settings.DOMAIN}/api/reset-password/{token}"
         # HTML content with purple on white styling, incorporating the first name
         html_content = f"""
         <html>
@@ -71,7 +73,7 @@ class PasswordResetMailService:
                     Hello {first_name}, <br><br>
                     You requested to reset your password. Please click the button below to reset it:
                 </p>
-                <a href="http://localhost:8000/api/reset-password?token={token}" 
+                <a href={link}
                    style="background-color: #4B0082; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 16px; border-radius: 5px;">
                     Reset Password
                 </a>
@@ -94,3 +96,6 @@ class PasswordResetMailService:
         # Initialize FastMail and send the email
         fm = FastMail(conf)
         await fm.send_message(message)
+
+
+
