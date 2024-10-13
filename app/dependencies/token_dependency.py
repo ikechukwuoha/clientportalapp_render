@@ -30,16 +30,18 @@ def decode_token(token: str, db: Session = Depends(get_db)) -> User:
         logging.info(f"Token received: {token}")
         
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        #print("This is the Payload from the Decoded token", payload)
         
         # Ensure the token has not expired
         if payload["exp"] < datetime.now().timestamp():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token has expired")
 
-        email = payload.get("sub")
+        email = payload.get("email")
         if email is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token: Email not found")
         
         user = db.query(User).filter(User.email == email).first()
+        #print("This is the data fetched from the User", user)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 

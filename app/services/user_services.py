@@ -23,7 +23,6 @@ async def signup(db: Session, user: UserCreate) -> str:
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="User already exists"
         )
-    
     user.password = hash_password(user.password)
     created_user = create_user(db, user)  # Create the user in the database
 
