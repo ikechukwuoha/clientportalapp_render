@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     DOMAIN: str
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    SESSION_SECRET_KEY: str
 
     
     

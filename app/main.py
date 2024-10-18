@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
-from app.routers import user_routes, email_routes
+from app.database.init_db import init_db
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import importlib
@@ -10,6 +10,9 @@ from logging.handlers import RotatingFileHandler
 import uvicorn
 from app.config.settings import settings
 from app.database.db import engine
+from starlette.middleware.sessions import SessionMiddleware
+
+
 
 
 
@@ -20,10 +23,15 @@ load_dotenv()
 # Create FastAPI instance
 app = FastAPI(title=settings.PROJECT_NAME)
 
+
+
 # CORS configuration
 origins = [
     "http://localhost:3000",  # Local frontend (e.g., React)
+    "http://127.0.0.1:3000",       # Localhost using 127.0.0.1
+    "http://127.0.0.1:8000",
     "https://yourfrontenddomain.com",  # Production frontend URL
+    
 ]
 
 app.add_middleware(
@@ -33,12 +41,23 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET_KEY"))
 
 # Get route prefix from environment variables
 ROUTE_PREFIX = os.getenv("ROUTE_PREFIX")
 
 
 
+# A Function That Creates Default roles and permission with the needed Relationship at Initialization of the APP
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     """Lifespan event handler for FastAPI"""
+#     logging.info("Initializing database with roles and permissions.")
+#     init_db()  # Initialize the DB during startup
+#     yield
+#     logging.info("Application shutdown complete.")  # Cleanup tasks if needed
+
+# app.router.lifespan_context = lifespan
 
 # # Include Routers
 # app.include_router(user_routes.router, prefix=ROUTE_PREFIX)
@@ -100,6 +119,11 @@ try:
         logging.info("Database connected successfully!")
 except Exception as e:
     logging.error(f"Failed to connect to the database: {e}")
+
+@app.get('/')
+async def home():
+    return {'message': "Welcome"}
+
     
 
 if __name__ == "__main__":

@@ -23,7 +23,6 @@ async def verify_email(token: str, db: Session = Depends(get_db), response: Resp
 
     # Set the token in the cookie
     response.set_cookie(key="access_token", value=access_token, httponly=True, samesite='Strict')
-
     return {"message": "Email verified successfully"}
 
 

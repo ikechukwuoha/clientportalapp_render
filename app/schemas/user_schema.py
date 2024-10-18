@@ -3,7 +3,7 @@ from typing import List
 from uuid import UUID
 from pydantic import BaseModel, field_validator, Field, EmailStr
 import re
-from pydantic import BaseModel, EmailStr, constr, Field
+from pydantic import BaseModel, EmailStr, constr, Field,field_serializer
 
 class UserCreate(BaseModel):
     first_name: str  # Type hint using constr directly
@@ -73,6 +73,15 @@ class UserResponse(BaseModel):
     class Config:
         # Make sure Pydantic uses the correct types for serialization
         from_attributes = True
+        
+    # Serializers for UUID and datetime
+    @field_serializer('id')
+    def serialize_uuid(self, value: UUID) -> str:
+        return str(value)
+
+    @field_serializer('created_at', 'updated_at')
+    def serialize_datetime(self, value: datetime) -> str:
+        return value.isoformat()
 
 class SignupResponse(BaseModel):
     user: UserResponse
