@@ -1,20 +1,24 @@
 # Performs Low Level Crud Opperations to The DataBase
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_model import User  # Ensure you import your User model
 from app.schemas.user_schema import UserCreate  # Define your UserCreate schema
 
-def create_user(db: Session, user: UserCreate) -> User:
-    db_user = User(
-        first_name=user.first_name,
-        last_name=user.last_name,
-        email=user.email,
-        password=user.password
-    )
+
+
+async def create_user(db: AsyncSession, user: UserCreate):
+    db_user = User(**user.model_dump())  # Use model_dump instead of dict
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()  # Ensure to await commit
+    await db.refresh(db_user)  # Optional: to refresh instance with updated state
     return db_user
 
-def get_user_by_email(db: Session, email: str) -> User:
-    return db.query(User).filter(User.email == email).first()
+
+
+
+
+async def get_user_by_email(db: AsyncSession, email: str) -> User:
+    stmt = select(User).where(User.email == email)  # Use where() instead of filter()
+    result = await db.execute(stmt)
+    return result.scalars().first()  # Use scalars() to retrieve the first result

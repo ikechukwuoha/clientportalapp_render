@@ -10,7 +10,6 @@ class AuthController:
         Calls the signup service to handle user registration logic.
         """
         result = await signup(db, user)
-        print(result)
         return result
     
 
@@ -20,5 +19,4 @@ class AuthController:
         Calls the signin service to handle user login logic.
         """
         result = await signin(db, user)
-        print(result)
         return result

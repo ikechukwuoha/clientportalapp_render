@@ -2,10 +2,10 @@
 
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.repository.users_repository import create_user, get_user_by_email
 from app.schemas.user_schema import UserCreate, UserLogin
-from app.security.security import create_access_token, hash_password, verify_password
+from app.security.security import create_access_token, create_refresh_token, hash_password, verify_password
 from app.models.user_model import User
 from app.services.email_services import EmailService
 
@@ -16,15 +16,17 @@ email_service = EmailService()
 
 
 # THIS IS THE SIGN UP FUNCTION
-async def signup(db: Session, user: UserCreate) -> str:
-    existing_user = get_user_by_email(db, user.email)
+async def signup(db: AsyncSession, user: UserCreate) -> str:
+    existing_user = await get_user_by_email(db, user.email)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="User already exists"
         )
-    user.password = hash_password(user.password)
-    created_user = create_user(db, user)  # Create the user in the database
+    
+    user.password = await hash_password(user.password)
+    
+    created_user = await create_user(db, user)  # Ensure to await the user creation
 
     # Send verification email
     await email_service.handle_email_verification(db, user.email, user.first_name)
@@ -33,13 +35,13 @@ async def signup(db: Session, user: UserCreate) -> str:
         status_code=201,  # HTTP status for "Created"
         content={"message": "User created. Please check your email to verify your account."}
     )
-
+    
+    
 
 # THIS IS THE SIGN IN FUNCTION
-
-async def signin(db: Session, user: UserLogin) -> str:
-    existing_user = get_user_by_email(db, user.email)
-    if not existing_user or not verify_password(user.password, existing_user.password):
+async def signin(db: AsyncSession, user: UserLogin) -> dict:
+    existing_user = await get_user_by_email(db, user.email)
+    if not existing_user or not await verify_password(user.password, existing_user.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid credentials"
@@ -48,12 +50,18 @@ async def signin(db: Session, user: UserLogin) -> str:
     # Generate JWT token
     token_data = {
         "id": str(existing_user.id),
-        "sub": existing_user.email,
+        "email": existing_user.email,
         "first_name": existing_user.first_name,
         "last_name": existing_user.last_name,
         "is_active": existing_user.is_active,
+        "role_id": existing_user.role_id
         # Add more fields as needed
     }
-    token = create_access_token(data=token_data)
+    access_token = await create_access_token(user_data=token_data)  # Generate access token
+    refresh_token = await create_refresh_token(user_data=token_data)  # Generate refresh token
     
-    return token
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }
+

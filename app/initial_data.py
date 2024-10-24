@@ -27,7 +27,7 @@ permissions = [
     {"name": "Deploy"}
 ]
 
-role_permissions = {
+roles_permissions = {
     "Super Admin": ["Create", "Read", "Update", "Delete", "Manage Users", "Publish", "Archive", "Restore", "Audit", "Manage Settings", "Support Users", "Deploy"],
     "Admin": ["Create", "Read", "Update", "Delete", "Manage Users", "Publish", "Archive", "Manage Settings"],
     "Editor": ["Create", "Read", "Update", "Publish"],

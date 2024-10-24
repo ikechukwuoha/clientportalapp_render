@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
     DOMAIN: str
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str

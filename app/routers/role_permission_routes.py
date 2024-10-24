@@ -11,8 +11,11 @@ from app.schemas.role_permission_schema import (
     RoleAssignment,
     PermissionRevoke
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_model import User
 from app.models.permission import Permission
+from app.dependencies.dependencies import get_role_name, verify_role_for_admin_or_super_admin
+from app.security.security import get_current_user_id
 from app.services.role_permission_services import (
     add_permissions_to_user,
     create_role,
@@ -32,16 +35,19 @@ router = APIRouter()
 
 
 
-# Create a new role
-@router.post("/create-role", response_model=None, tags=["role_permission"])
-async def create_new_role(role: RoleCreate, db: Session = Depends(get_db)):
+# Create Role
+@router.post("/create-role", tags=["role_permission"])
+async def create_new_role(role: RoleCreate, db: AsyncSession = Depends(get_db), current_role: str = Depends(get_role_name)):
+    await verify_role_for_admin_or_super_admin(current_role)
+    
     created_role = await create_role(db, role.name)
     return {"message": f"Role '{created_role.name}' created successfully.", "role": created_role}
 
 
+
 # Delete a role
 @router.delete("/delete-role/{role_id}", response_model=dict, tags=["role_permission"])
-async def delete_existing_role(role_id: uuid.UUID, db: Session = Depends(get_db)):
+async def delete_existing_role(role_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     success = await delete_role(db, role_id)
     if not success:
         raise HTTPException(status_code=404, detail="Role not found.")
@@ -51,33 +57,40 @@ async def delete_existing_role(role_id: uuid.UUID, db: Session = Depends(get_db)
 
 # Add a role to a user
 @router.post("/add-role-to-user/{user_id}", tags=["role_permission"])
-async def assign_role_to_user(user_id: uuid.UUID, role_assignment: RoleAssignment, db: Session = Depends(get_db)):
+async def assign_role_to_user(user_id: uuid.UUID, role_assignment: RoleAssignment, db: AsyncSession = Depends(get_db)):
     success = await add_role_to_user(db, user_id, role_assignment.role_id)
     if not success:
         raise HTTPException(status_code=404, detail="User or role not found.")
     return {"message": "Role assigned to user successfully."}
 
 
+# Delete Role from a User
 @router.delete("/remove-role-from-user/{user_id}", tags=["role_permission"])
-async def revoke_role_from_user(user_id: uuid.UUID, db: Session = Depends(get_db)):
+async def revoke_role_from_user(user_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     success = await remove_role_from_user(db, user_id)
     if not success:
         raise HTTPException(status_code=404, detail="User or role not found.")
     return {"message": "Role removed from user successfully."}
 
+
+
 # Create a new permission
 @router.post("/create-permission", response_model=PermissionResponse, tags=["role_permission"])
-async def create_new_permission(permission: PermissionCreate, db: Session = Depends(get_db)):
+async def create_new_permission(permission: PermissionCreate, db: AsyncSession = Depends(get_db)):
     created_permission = await create_permission(db, permission.name)
     return {"message": f"Permission '{created_permission.name}' created successfully.", "permission": created_permission}
 
+
+
 # Delete a permission
 @router.delete("/delete-permission/{permission_id}", response_model=dict, tags=["role_permission"])
-async def delete_existing_permission(permission_id: uuid.UUID, db: Session = Depends(get_db)):
+async def delete_existing_permission(permission_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     success = await delete_permission(db, permission_id)
     if not success:
         raise HTTPException(status_code=404, detail="Permission not found.")
     return {"message": "Permission deleted successfully."}
+
+
 
 
 # Add multiple permissions to a role
@@ -85,7 +98,7 @@ async def delete_existing_permission(permission_id: uuid.UUID, db: Session = Dep
 async def assign_single_or_multiple_permissions_to_role(
     role_id: uuid.UUID,
     permission_ids: list[uuid.UUID],
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     added_permissions_count = await add_permissions_to_role(db, role_id, permission_ids)
     
@@ -97,12 +110,14 @@ async def assign_single_or_multiple_permissions_to_role(
         return {"message": "1 permission added to the role successfully."}
     else:
         return {"message": f"{added_permissions_count} permissions added to the role successfully."}
+
+
     
     
 
 # Remove a permission or multiple permissions from a role
 @router.delete("/permission/{role_id}", tags=["role_permission"])
-async def revoke_permissions_from_role(role_id: uuid.UUID, permission_revoke: PermissionRevoke, db: Session = Depends(get_db)):
+async def revoke_permissions_from_role(role_id: uuid.UUID, permission_revoke: PermissionRevoke, db: AsyncSession = Depends(get_db)):
     success = await remove_permissions_from_role(db, role_id, permission_revoke.permission_ids)
     
     if not success:
@@ -137,7 +152,7 @@ async def assign_single_or_multiple_permissions_to_user(
 
 # Remove a permission or multiple permissions from a user
 @router.delete("/remove-user-permission/{role_id}", tags=["role_permission"])
-async def revoke_permissions_from_user(user_id: uuid.UUID, permission_revoke: PermissionRevoke, db: Session = Depends(get_db)):
+async def revoke_permissions_from_user(user_id: uuid.UUID, permission_revoke: PermissionRevoke, db: AsyncSession = Depends(get_db)):
     success = await remove_permissions_from_user(db, user_id, permission_revoke.permission_ids)
     
     if not success:
@@ -147,17 +162,20 @@ async def revoke_permissions_from_user(user_id: uuid.UUID, permission_revoke: Pe
 
 
 
+
 # A Function to get all Functions
 @router.get("/all-permissions", tags=["role_permission"])
-async def get_all_permissions(db: Session = Depends(get_db)):
+async def get_all_permissions(db: AsyncSession = Depends(get_db)):
     permissions = db.query(Permission).all()
     
     return permissions
 
 
+
+
 # A Function to get all Roles
 @router.get("/all-roles", tags=["role_permission"])
-async def get_all_roles(db: Session = Depends(get_db)):
+async def get_all_roles(db: AsyncSession = Depends(get_db)):
     roles = db.query(Role).all()
     
     return roles

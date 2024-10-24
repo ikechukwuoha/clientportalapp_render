@@ -1,9 +1,18 @@
 import os
 from datetime import datetime, timedelta
+import uuid
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 from app.config.settings import settings
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 
 
@@ -24,32 +33,86 @@ EMAIL_TOKEN_EXPIRE_MINUTES = int(os.getenv("EMAIL_TOKEN_EXPIRE_MINUTES", 5))
 
 
 
-def hash_password(password: str) -> str:
-    """Hashes a password using Bcrypt."""
+async def hash_password(password: str) -> str:
     """Hashes a password using Bcrypt."""
     return pwd_context.hash(password)
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+
+
+async def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifies a plain password against a hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 
-def create_access_token(data: dict):
-    """Generates a JWT token with an expiration time."""
-    to_encode = data.copy()
-    expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+async def create_access_token(
+    user_data: dict, expiry: timedelta = None, refresh: bool = False
+) -> str:
+    payload = {
+        "user": user_data,
+        "exp": datetime.now() + (expiry if expiry is not None else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)),
+        "jti": str(uuid.uuid4()),
+        "refresh": refresh,
+    }
+    # Correct the call to jwt.encode
+    token = jwt.encode(
+        payload,
+        key=settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM
+    )
+    return token
 
 
-def create_verification_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.now() + timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    return encoded_jwt
+async def create_refresh_token(user_data: dict) -> str:
+    payload = {
+        "user": user_data,
+        "exp": datetime.now() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),  # Use a longer expiry for refresh tokens
+        "jti": str(uuid.uuid4()),  # Generate a unique ID for the refresh token
+        "refresh": True,
+    }
+
+    token = jwt.encode(
+        payload,
+        key=settings.SECRET_KEY, 
+        algorithm=settings.ALGORITHM
+    )
+
+    return token
+
+
+
+
+
+# Function to create the verification token
+async def create_verification_token(data: dict, expiry: timedelta = None) -> str:
+    payload = {
+        "data": data,
+        "exp": datetime.now() + (expiry if expiry is not None else timedelta(minutes=settings.EMAIL_TOKEN_EXPIRE_MINUTES)),
+        "jti": str(uuid.uuid4())
+    }
+    # Correct the call to jwt.encode
+    token = jwt.encode(
+        payload,  # Pass the payload as the first argument
+        key=settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM
+    )
+    return token
+
+
+
+
+
+async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> uuid.UUID:
+    try:
+        # Decode the token and extract the payload
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+        return uuid.UUID(user_id)
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
 
 
 

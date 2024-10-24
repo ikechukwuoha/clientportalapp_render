@@ -53,16 +53,17 @@ class EmailService:
         await self.fm.send_message(message)
 
     async def handle_email_verification(self, db, email, first_name):
-        verification_token = create_verification_token(data={"email": email})
+        verification_token = await create_verification_token(data={"email": email})
         await self.send_verification_email(email, verification_token, first_name)
 
         
         
         
 class PasswordResetMailService:
-    async def send_reset_password_email(self, email: EmailStr, token: str, first_name: str):
+    async def send_reset_password_email(self, email: EmailStr, token: str, first_name: str):  # Change token_data to token
         # Use settings.DOMAIN to create the reset link dynamically
         link = f"{settings.DOMAIN}/api/reset-password/{token}"
+
         # HTML content with purple on white styling, incorporating the first name
         html_content = f"""
         <html>
@@ -73,10 +74,7 @@ class PasswordResetMailService:
                     Hello {first_name}, <br><br>
                     You requested to reset your password. Please click the button below to reset it:
                 </p>
-                <a href={link}
-                   style="background-color: #4B0082; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 16px; border-radius: 5px;">
-                    Reset Password
-                </a>
+                <a href="{link}" style="background-color: #4B0082; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 16px; border-radius: 5px;">Reset Password</a>
                 <p style="margin-top: 20px; font-size: 12px; color: #666;">
                     If you did not request this password reset, you can safely ignore this email.
                 </p>
@@ -89,13 +87,14 @@ class PasswordResetMailService:
         message = MessageSchema(
             subject="Password Reset Request",
             recipients=[email],  
-            body=html_content,  # Using the styled HTML content
-            subtype="html"  # Specifying that the content is HTML
+            body=html_content,  
+            subtype="html"  
         )
 
         # Initialize FastMail and send the email
         fm = FastMail(conf)
         await fm.send_message(message)
+
 
 
 

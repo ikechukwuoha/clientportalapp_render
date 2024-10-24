@@ -19,8 +19,7 @@ role_permissions = Table(
 
 # Association table for User and Permission (many-to-many)
 user_permissions = Table(
-    'user_permissions',
-    Base.metadata,
+    'user_permissions', Base.metadata,
     Column('user_id', UUID(as_uuid=True), ForeignKey('users.id'), primary_key=True),
     Column('permission_id', UUID(as_uuid=True), ForeignKey('permissions.id'), primary_key=True)
 )
