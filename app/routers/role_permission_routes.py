@@ -38,7 +38,7 @@ router = APIRouter()
 # Create Role
 @router.post("/create-role", tags=["role_permission"])
 async def create_new_role(role: RoleCreate, db: AsyncSession = Depends(get_db), current_role: str = Depends(get_role_name)):
-    await verify_role_for_admin_or_super_admin(current_role)
+    await create_role(current_role)
     
     created_role = await create_role(db, role.name)
     return {"message": f"Role '{created_role.name}' created successfully.", "role": created_role}
