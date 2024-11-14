@@ -6,9 +6,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from logging.handlers import RotatingFileHandler
 import uvicorn
-from app.config.settings import settings
-from app.database.db import async_engine
-from app.database.init_db import init_db
+from app.api.config.settings import settings
+from app.api.database.db import async_engine
+from app.api.database.init_db import init_db
 from starlette.middleware.sessions import SessionMiddleware
 
 # Load environment variables
@@ -59,11 +59,11 @@ def setup_logging():
 setup_logging()
 
 # Include routers dynamically
-router_folder = os.path.join(os.path.dirname(__file__), "routers")
+router_folder = os.path.join(os.path.dirname(__file__), "api", "v1", "endpoints")
 def include_routers(app: FastAPI):
     for module_name in os.listdir(router_folder):
         if module_name.endswith(".py") and module_name != "__init__.py":
-            module_path = f"app.routers.{module_name[:-3]}"
+            module_path = f"app.api.v1.endpoints.{module_name[:-3]}"
             module = importlib.import_module(module_path)
             if hasattr(module, "router"):
                 router = getattr(module, "router")
