@@ -4,3 +4,10 @@ alembic.ini
 venv
 app.log
 app.log.1
+
+app.log
+app/config/__pycache__/
+app/repository/__pycache__/
+app/schemas/__pycache__/
+app/security/__pycache__/
+requirements.txt
