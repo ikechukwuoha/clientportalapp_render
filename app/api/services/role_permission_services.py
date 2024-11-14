@@ -9,11 +9,13 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
+
+
 class RoleAssignment(BaseModel):
-    role_id: uuid.UUID  # A single role ID to be assigned
+    role_id: uuid.UUID  
 
 
-
+# Function For Creating Roles
 async def create_role(db: AsyncSession, role_name: str) -> Role:
     result = await db.execute(
         select(Role).filter(Role.name == role_name)
@@ -24,14 +26,13 @@ async def create_role(db: AsyncSession, role_name: str) -> Role:
     if existing_role:
         raise HTTPException(status_code=404, detail=f"Role '{role_name}' already exists")
 
-    # Create a new role if it doesn't exist
     new_role = Role(name=role_name)
     db.add(new_role)
-    await db.commit()  # Commit the transaction asynchronously
-    await db.refresh(new_role)  # Refresh to get the role ID or other generated fields
+    await db.commit()
+    await db.refresh(new_role)
     return new_role
 
-
+# A Function To Delete Roles
 async def delete_role(db: AsyncSession, role_id: uuid.UUID):
     result = await db.execute(
         select(Role).filter(Role.id == role_id)
@@ -45,7 +46,7 @@ async def delete_role(db: AsyncSession, role_id: uuid.UUID):
 
     return False
 
-
+# A Function To Append A Role to A User
 async def add_role_to_user(db: AsyncSession, user_id: uuid.UUID, role_id: uuid.UUID):
     result = await db.execute(select(User).filter(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -57,7 +58,7 @@ async def add_role_to_user(db: AsyncSession, user_id: uuid.UUID, role_id: uuid.U
         return True
     return False
 
-
+# A Function To Revoke a Role From A User
 async def remove_role_from_user(db: AsyncSession, user_id: uuid.UUID):
     result = await db.execute(select(User).filter(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -69,26 +70,25 @@ async def remove_role_from_user(db: AsyncSession, user_id: uuid.UUID):
     
     return False
 
-
+# A Function For Creating Permissions
 async def create_permission(db: AsyncSession, permission_name: str):
     permission = Permission(name=permission_name)
     try:
         db.add(permission)
-        await db.commit()  # Commit asynchronously
-        await db.refresh(permission)  # Refresh asynchronously to get the latest state of the object
+        await db.commit()
+        await db.refresh(permission)
     except Exception as e:
-        db.rollback()  # Rollback in case of an error
+        db.rollback()
         raise e
     return permission
 
 
+# A Function That Delete Permissions
 async def delete_permission(db: AsyncSession, permission_id: uuid.UUID):
     result = await db.execute(
         select(Permission).filter(Permission.id == permission_id)
     )
-    
     permission = result.scalar_one_or_none()
-    
     if permission:
         await db.delete(permission)
         await db.commit()
@@ -96,27 +96,23 @@ async def delete_permission(db: AsyncSession, permission_id: uuid.UUID):
     return False
 
 
+
+# A Function That Adds Permissions Or a Permission to a Role
 async def add_permissions_to_role(db: AsyncSession, role_id: uuid.UUID, permission_ids: list[uuid.UUID]) -> int:
-    # Fetch the role and eagerly load permissions to avoid lazy loading issues
     result = await db.execute(select(Role).filter(Role.id == role_id).options(joinedload(Role.permissions)))
     role = result.scalars().first()
 
     if not role:
         print(f"Role with ID {role_id} not found.")
-        return 0  # Return 0 if the role is not found
-
+        return 0
     added_count = 0
-
-    # Loop through each permission and try to add it to the role
     for permission_id in permission_ids:
         result = await db.execute(select(Permission).filter(Permission.id == permission_id))
         permission = result.scalars().first()
 
         if not permission:
             print(f"Permission with ID {permission_id} not found.")
-            continue  # Skip this permission if not found
-
-        # Check if the permission is already assigned to the role
+            continue 
         if permission not in role.permissions:
             role.permissions.append(permission)
             added_count += 1
@@ -124,21 +120,20 @@ async def add_permissions_to_role(db: AsyncSession, role_id: uuid.UUID, permissi
             print(f"Permission {permission_id} already exists for role {role_id}.")
 
     if added_count > 0:
-        await db.commit()  # Commit only if permissions were added
+        await db.commit() 
     else:
         print(f"No new permissions were added to role {role_id}.")
     
-    return added_count  # Return the count of added permissions
+    return added_count 
 
 
 
 
 
-
+# A Function That Removes A Permission or All Permissions from a role
 async def remove_permissions_from_role(db: AsyncSession, role_id: uuid.UUID, permission_ids: list):
-    # Use `select` for async queries
     result = await db.execute(select(Role).options(joinedload(Role.permissions)).filter(Role.id == role_id))
-    role = result.scalars().first()  # Get the first result, if any
+    role = result.scalars().first()
     
     if role:
         for permission_id in permission_ids:
@@ -147,8 +142,6 @@ async def remove_permissions_from_role(db: AsyncSession, role_id: uuid.UUID, per
             
             if permission and permission in role.permissions:
                 role.permissions.remove(permission)
-        
-        # Commit the changes
         await db.commit()
         return True
     return False
@@ -158,46 +151,39 @@ async def remove_permissions_from_role(db: AsyncSession, role_id: uuid.UUID, per
 
 # A Function That Adds Permissions or a Single Permission to a role
 async def add_permissions_to_user(db: AsyncSession, user_id: uuid.UUID, permission_ids: List[uuid.UUID]) -> int:
-    # Use execute for async queries
     result = await db.execute(select(User).options(joinedload(User.permissions)).filter(User.id == user_id))
     user = result.scalars().first()
     
     if not user:
-        return 0  # Return 0 if user is not found
+        return 0
 
     added_count = 0
-
-    # Add each permission to the role
     for permission_id in permission_ids:
         permission_result = await db.execute(select(Permission).filter(Permission.id == permission_id))
         permission = permission_result.scalars().first()
         
         if permission and permission not in user.permissions:
             user.permissions.append(permission)
-            added_count += 1  # Increment count for each permission added
+            added_count += 1
 
-    await db.commit()  # Await commit for async sessions
-    return added_count  # Return the count of added permissions
+    await db.commit()
+    return added_count
 
 
 
 
 # A Function That Revokes Permission From A User
 async def remove_permissions_from_user(db: AsyncSession, user_id: uuid.UUID, permission_ids: list):
-    # Use execute for async queries
     result = await db.execute(select(User).options(joinedload(User.permissions)).filter(User.id == user_id))
     user = result.scalars().first()
     
     if user:
-        # Load all permissions in a single query
         permission_results = await db.execute(select(Permission).filter(Permission.id.in_(permission_ids)))
         permissions_to_revoke = permission_results.scalars().all()
-        
-        # Remove permissions from user
         for permission in permissions_to_revoke:
             if permission in user.permissions:
                 user.permissions.remove(permission)
         
-        await db.commit()  # Await commit for async sessions
+        await db.commit()
         return True
     return False
