@@ -11,3 +11,5 @@ app/repository/__pycache__/
 app/schemas/__pycache__/
 app/security/__pycache__/
 requirements.txt
+
+docker-compose.yml
