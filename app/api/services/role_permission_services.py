@@ -95,20 +95,7 @@ async def delete_permission(db: AsyncSession, permission_id: uuid.UUID):
         return True
     return False
 
-# async def delete_role(db: AsyncSession, role_id: uuid.UUID):
-#     result = await db.execute(
-#         select(Role).filter(Role.id == role_id)
-#     )
-#     role = result.scalar_one_or_none()
 
-#     if role:
-#         await db.delete(role)
-#         await db.commit()
-#         return True
-
-#     return False
-
-# Add permissions to a role
 async def add_permissions_to_role(db: AsyncSession, role_id: uuid.UUID, permission_ids: list[uuid.UUID]) -> int:
     # Fetch the role and eagerly load permissions to avoid lazy loading issues
     result = await db.execute(select(Role).filter(Role.id == role_id).options(joinedload(Role.permissions)))
@@ -150,13 +137,13 @@ async def add_permissions_to_role(db: AsyncSession, role_id: uuid.UUID, permissi
 
 async def remove_permissions_from_role(db: AsyncSession, role_id: uuid.UUID, permission_ids: list):
     # Use `select` for async queries
-    result = await db.execute(select(Role).filter(Role.id == role_id))
+    result = await db.execute(select(Role).options(joinedload(Role.permissions)).filter(Role.id == role_id))
     role = result.scalars().first()  # Get the first result, if any
     
     if role:
         for permission_id in permission_ids:
-            permission = await db.execute(select(Permission).filter(Permission.id == permission_id))
-            permission = permission.scalars().first()
+            permission_result = await db.execute(select(Permission).filter(Permission.id == permission_id))
+            permission = permission_result.scalars().first()
             
             if permission and permission in role.permissions:
                 role.permissions.remove(permission)
@@ -169,11 +156,12 @@ async def remove_permissions_from_role(db: AsyncSession, role_id: uuid.UUID, per
 
 
 
-
-
 # A Function That Adds Permissions or a Single Permission to a role
 async def add_permissions_to_user(db: AsyncSession, user_id: uuid.UUID, permission_ids: List[uuid.UUID]) -> int:
-    user = db.query(User).filter(User.id == user_id).first()
+    # Use execute for async queries
+    result = await db.execute(select(User).options(joinedload(User.permissions)).filter(User.id == user_id))
+    user = result.scalars().first()
+    
     if not user:
         return 0  # Return 0 if user is not found
 
@@ -181,12 +169,14 @@ async def add_permissions_to_user(db: AsyncSession, user_id: uuid.UUID, permissi
 
     # Add each permission to the role
     for permission_id in permission_ids:
-        permission = db.query(Permission).filter(Permission.id == permission_id).first()
+        permission_result = await db.execute(select(Permission).filter(Permission.id == permission_id))
+        permission = permission_result.scalars().first()
+        
         if permission and permission not in user.permissions:
             user.permissions.append(permission)
             added_count += 1  # Increment count for each permission added
 
-    db.commit()  # Commit after all permissions are added
+    await db.commit()  # Await commit for async sessions
     return added_count  # Return the count of added permissions
 
 
@@ -194,13 +184,20 @@ async def add_permissions_to_user(db: AsyncSession, user_id: uuid.UUID, permissi
 
 # A Function That Revokes Permission From A User
 async def remove_permissions_from_user(db: AsyncSession, user_id: uuid.UUID, permission_ids: list):
-    user = db.query(User).filter(User.id == user_id).first()
+    # Use execute for async queries
+    result = await db.execute(select(User).options(joinedload(User.permissions)).filter(User.id == user_id))
+    user = result.scalars().first()
     
     if user:
-        for permission_id in permission_ids:
-            permission = db.query(Permission).filter(Permission.id == permission_id).first()
+        # Load all permissions in a single query
+        permission_results = await db.execute(select(Permission).filter(Permission.id.in_(permission_ids)))
+        permissions_to_revoke = permission_results.scalars().all()
+        
+        # Remove permissions from user
+        for permission in permissions_to_revoke:
             if permission in user.permissions:
                 user.permissions.remove(permission)
-        db.commit()
+        
+        await db.commit()  # Await commit for async sessions
         return True
     return False
