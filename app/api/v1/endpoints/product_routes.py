@@ -108,7 +108,7 @@ async def get_products(name: str, db: AsyncSession = Depends(get_db)):
         "description": product.get("description"),
         "imageSrc": product.get("images", []),
     }
-
+# 
     # Format the benefits
     formatted_benefits = [
         {
