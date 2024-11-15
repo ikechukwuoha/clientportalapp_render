@@ -65683,3 +65683,7 @@ WHERE users.id = $1::UUID
 2024-11-14 16:41:17,124 - INFO - ROLLBACK
 2024-11-14 16:41:17,126 - INFO - Initialization complete.
 2024-11-14 16:41:17,126 - INFO - Initialization complete.
+2024-11-14 17:38:17,796 - INFO - Shutting down
+2024-11-14 17:38:17,896 - INFO - Waiting for application shutdown.
+2024-11-14 17:38:17,897 - INFO - Application shutdown complete.
+2024-11-14 17:38:17,898 - INFO - Finished server process [1]
