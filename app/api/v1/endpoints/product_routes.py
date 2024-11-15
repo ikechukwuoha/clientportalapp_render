@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from app.config.settings import settings
-from app.database.db import get_db
-from app.models.product import Product
+from app.api.config.settings import settings
+from app.api.database.db import get_db
+from app.api.models.product import Product
 import httpx
 import uuid
 
