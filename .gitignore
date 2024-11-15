@@ -11,5 +11,11 @@ app/repository/__pycache__/
 app/schemas/__pycache__/
 app/security/__pycache__/
 requirements.txt
+*.cpython-312.pyc
+*.cpython-*.pyc
+__pycache__/
+
+app/__pycache__/
+app/api/**/__pycache__/
 
 docker-compose.yml
