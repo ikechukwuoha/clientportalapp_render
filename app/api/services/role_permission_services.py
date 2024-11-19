@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.api.models.role import Role
 from app.api.models.permission import Permission
-from app.api.models.user_model import User  # Assuming you have a User model
+from app.api.models.user_model import User
 import uuid
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
