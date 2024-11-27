@@ -11,7 +11,12 @@ class Product(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     product_title = Column(String, nullable=False)
+    product_code = Column(String, unique=True, nullable=False)
     product_image = Column(String, nullable=False)
     product_description = Column(String, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    
+    
+    
+    cart_items = relationship('CartItem', back_populates='product')

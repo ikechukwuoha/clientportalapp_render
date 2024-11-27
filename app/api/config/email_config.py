@@ -76,8 +76,9 @@ class PasswordResetMailService:
                 </p>
                 <a href="{link}" style="background-color: #4B0082; color: #fff; padding: 10px 20px; text-decoration: none; font-size: 16px; border-radius: 5px;">Reset Password</a>
                 <p style="margin-top: 20px; font-size: 12px; color: #666;">
-                    If you did not request this password reset, you can safely ignore this email.
+                    If you did not request this password reset, you can safely ignore this email or contact our Security Team on 091637463736372637, +23457865795959757
                 </p>
+                <p> You can also reach out to us via PurpleDoveSupport@purpleDove.net </p>
             </div>
         </body>
         </html>

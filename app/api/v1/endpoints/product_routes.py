@@ -1,10 +1,24 @@
+import json
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.database.db import get_db
 from fastapi import APIRouter, Depends
+from app.api.models.product import Product
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi import FastAPI, APIRouter, Request
+from app.api.schemas.product_schema import ItemUpdateRequest
 from app.api.services.product_services import fetch_and_save_product, get_products
 
+from sqlalchemy.future import select
+from sqlalchemy.exc import SQLAlchemyError
+from app.api.services.product_services import update_item_in_frappe
+import json
+
+import logging
+import traceback
+
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -34,8 +48,101 @@ async def get_product(name: str, db: AsyncSession = Depends(get_db)):
 
 
 
+@router.post("/get_data_from_erp")
+async def get_data_from_erp(request: Request, db: AsyncSession = Depends(get_db)):
+    try:
+        raw_body = await request.body()
+        try:
+            data_dict = json.loads(raw_body.decode())
+        except json.JSONDecodeError:
+            logger.error("Failed to decode JSON from the raw body")
+            return JSONResponse(content={"message": "Invalid JSON payload"}, status_code=400)
 
-    
+        logger.info(f"Processing product: {data_dict.get('item_name')}")
+
+        # Extract the product details
+        item_code = data_dict.get("item_code")
+        product_title = data_dict.get("item_name")
+        product_image = data_dict.get("image")
+        product_description = data_dict.get("description")
+        standard_rate = data_dict.get("standard_rate", 0.0)
+
+        # Check if the product already exists in the database by item_code
+        query = select(Product).where(Product.product_code == item_code)
+        result = await db.execute(query)
+        existing_product = result.scalar_one_or_none()
+
+        if existing_product:
+            # Update the fields that have changed
+            existing_product.product_title = product_title  # Ensure the name is updated
+            existing_product.product_image = product_image
+            
+            # Update the product description only if it was provided
+            if product_description is not None:
+                existing_product.product_description = product_description
+
+            # Optionally, update standard_rate if needed
+            # existing_product.standard_rate = standard_rate
+
+            logger.info(f"Updated product: {product_title} with item_code {item_code}")
+        else:
+            # Create a new product with or without a description
+            new_product = Product(
+                item_code=item_code,
+                product_title=product_title,
+                product_image=product_image,
+                product_description=product_description,
+                standard_rate=standard_rate
+            )
+            db.add(new_product)
+
+            logger.info(f"Created new product: {product_title} with item_code {item_code}")
+
+        # Commit the transaction
+        await db.commit()
+        return JSONResponse(content={"message": "Product processed successfully"}, status_code=200)
+
+    except SQLAlchemyError as e:
+        logger.error(f"Database error: {str(e)}")
+        await db.rollback()
+        return JSONResponse(content={"message": "Database error occurred"}, status_code=500)
+
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        return JSONResponse(content={"message": f"Error: {str(e)}"}, status_code=500)
+
+
+
+
+@router.put("/update-item/")
+def update_item(payload: ItemUpdateRequest):
+    return update_item_in_frappe(payload)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # @router.get("/get-product/{name}", tags=["product"])
 # async def get_products(name: str, db: AsyncSession = Depends(get_db)):

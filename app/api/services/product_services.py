@@ -7,6 +7,11 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import traceback
 
+import requests
+from app.api.config.erp_config import FRAPPE_URL, HEADERS
+
+from app.api.schemas.product_schema import ItemUpdateRequest
+
 
 
 API_KEY = "your_api_key"
@@ -42,10 +47,12 @@ async def save_product_to_db(db: AsyncSession, product_data: dict):
     """
     Save a product to the database if it does not already exist.
     """
-    query = select(Product).where(Product.product_title == product_data.get("name"))
+    # Check if the product already exists using a unique identifier (e.g., product_code)
+    query = select(Product).where(Product.product_code == product_data.get("name"))
     result = await db.execute(query)
     existing_product = result.scalars().first()
 
+    # If the product doesn't exist, create and save the product
     if not existing_product:
         images = product_data.get("images", [])
         product_image = images[0] if images else None
@@ -53,7 +60,8 @@ async def save_product_to_db(db: AsyncSession, product_data: dict):
         # Create and save the product in the database
         db_product = Product(
             id=uuid.uuid4(),
-            product_title=product_data.get("name"),
+            product_code=product_data.get("name"),  # Ensure unique identifier
+            product_title=product_data.get("item_name"),
             product_description=product_data.get("description"),
             product_image=product_image,
         )
@@ -61,7 +69,10 @@ async def save_product_to_db(db: AsyncSession, product_data: dict):
         await db.commit()
         await db.refresh(db_product)
         return db_product
-    return existing_product
+    else:
+        # Return the existing product if it exists
+        return existing_product
+
 
 
 async def process_and_store_products(db: AsyncSession, products: list):
@@ -75,10 +86,11 @@ async def process_and_store_products(db: AsyncSession, products: list):
 
         # Format the product for response
         formatted_product = {
-            "id": idx,  # Or use product.get("name") if unique
-            "title": product.get("name"),
-            "shortDescription": product.get("description"),
-            "longDescription": product.get("description"),
+            "id": idx, 
+            "product Code": product.get("name"),
+            "title": product.get("item_name"),
+            "short Description": product.get("description"),
+            "long Description": product.get("description"),
             "images": product.get("images", []),
             "buttons": [
                 {"name": "Learn More", "styles": "button-style-purple"},
@@ -197,3 +209,81 @@ async def fetch_and_save_product(name: str, db: AsyncSession) -> dict:
 
     # Format the product for the response
     return await format_product_data(product)
+
+
+
+
+def update_item_in_frappe(payload: ItemUpdateRequest):
+    # Update the Item Doctype in Frappe
+    item_data = {
+        "item_name": payload.item_name,
+        "item_group": payload.item_group,
+        "description": payload.description,
+        "custom_security": payload.custom_security
+    }
+
+    try:
+        # Update the main Item record
+        item_response = requests.put(
+            f"{FRAPPE_URL}/api/method/clientportalapp.product.update_item_from_api/{payload.name}",
+            json=item_data,
+             headers = {
+            "Authorization": f"token {API_KEY}:{API_SECRET}"
+            }
+        )
+
+        if item_response.status_code != 200:
+            raise HTTPException(
+                status_code=item_response.status_code,
+                detail=f"Failed to update Item: {item_response.json()}"
+            )
+
+        # Update Benefits child table
+        if payload.benefits:
+            for benefit in payload.benefits:
+                response = requests.post(
+                    f"{FRAPPE_URL}/api/resource/Benefits",
+                    json={"parent": payload.name, **benefit},
+                    headers=HEADERS
+                )
+                if response.status_code != 200:
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=f"Failed to update Benefits: {response.json()}"
+                    )
+
+        # Update ItemImage child table
+        if payload.images:
+            for image in payload.images:
+                response = requests.post(
+                    f"{FRAPPE_URL}/api/resource/ItemImage",
+                    json={"parent": payload.name, "images": image},
+                    headers=HEADERS
+                )
+                if response.status_code != 200:
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=f"Failed to update ItemImage: {response.json()}"
+                    )
+
+        # Update or add Item Price
+        if payload.price is not None:
+            response = requests.post(
+                f"{FRAPPE_URL}/api/resource/Item Price",
+                json={
+                    "item_code": payload.name,
+                    "price_list_rate": payload.price,
+                    "valid_from": "2024-11-27"  # Example current date
+                },
+                headers=HEADERS
+            )
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to update Item Price: {response.json()}"
+                )
+
+        return {"message": "Item updated successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating item: {str(e)}")
