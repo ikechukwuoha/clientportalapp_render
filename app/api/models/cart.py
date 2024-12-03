@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
+from sqlalchemy import Column, Float, String, DateTime, Integer, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -28,6 +28,7 @@ class CartItem(Base):
     cart_id = Column(UUID(as_uuid=True), ForeignKey('carts.id'), nullable=False)
     item_id = Column(UUID(as_uuid=True), ForeignKey('products.id'), nullable=False)
     title = Column(String, nullable=True)
+    price = Column(Float, nullable=False, default=0.00)
     quantity = Column(Integer, nullable=False, default=1)
     short_description = Column(String, name='shortDescription', nullable=True)
     long_description = Column(String, name='longDescription', nullable=True)

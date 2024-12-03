@@ -57,6 +57,8 @@ async def save_product_to_db(db: AsyncSession, product_data: dict):
         images = product_data.get("images", [])
         product_image = images[0] if images else None
 
+        product_price = product_data.get("price")  # Ensure to get the product price from the API response
+
         # Create and save the product in the database
         db_product = Product(
             id=uuid.uuid4(),
@@ -64,15 +66,15 @@ async def save_product_to_db(db: AsyncSession, product_data: dict):
             product_title=product_data.get("item_name"),
             product_description=product_data.get("description"),
             product_image=product_image,
+            product_price=product_price,  # Storing the price here
         )
         db.add(db_product)
         await db.commit()
         await db.refresh(db_product)
         return db_product
     else:
-        # Return the existing product if it exists
+        # If the product exists, return it (no new product saved)
         return existing_product
-
 
 
 async def process_and_store_products(db: AsyncSession, products: list):
@@ -82,7 +84,7 @@ async def process_and_store_products(db: AsyncSession, products: list):
     formatted_products = []
     for idx, product in enumerate(products, start=1):
         # Save product to the database
-        await save_product_to_db(db, product)
+        saved_product = await save_product_to_db(db, product)
 
         # Format the product for response
         formatted_product = {
@@ -92,6 +94,7 @@ async def process_and_store_products(db: AsyncSession, products: list):
             "short Description": product.get("description"),
             "long Description": product.get("description"),
             "images": product.get("images", []),
+            "price": product.get("price"),  # Include price in the formatted response
             "buttons": [
                 {"name": "Learn More", "styles": "button-style-purple"},
                 {"name": "Add to Cart", "styles": "button-style-purple"},
@@ -100,6 +103,8 @@ async def process_and_store_products(db: AsyncSession, products: list):
         }
         formatted_products.append(formatted_product)
     return formatted_products
+
+
 
 
 async def get_products(db: AsyncSession):

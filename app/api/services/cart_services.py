@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -9,6 +10,15 @@ from uuid import uuid4
 from sqlalchemy import type_coerce
 from sqlalchemy import cast
 from sqlalchemy import String
+
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 
 
 
@@ -41,6 +51,7 @@ async def add_item_to_cart(db: AsyncSession, user_id: UUID, product_id: str, qua
             cart_id=cart.id,
             item_id=product.id,
             title=product.product_title,
+            price=product.product_price,
             quantity=quantity,
             short_description=product.product_description,
             long_description=product.product_description,
@@ -79,44 +90,87 @@ async def remove_item_from_cart(db: AsyncSession, user_id: str, product_id: str)
 
 
 async def view_cart(db: AsyncSession, user_id: str):
-    # Find the user's cart
-    result = await db.execute(select(Cart).filter(Cart.user_id == user_id))
-    cart = result.scalars().first()
-    if not cart:
-        raise ValueError("Cart not found for the user.")
+    logger = logging.getLogger(__name__)
 
-    # Retrieve all items in the cart with product details
-    result = await db.execute(
-        select(CartItem)
-        .filter(CartItem.cart_id == cart.id)
-        .options(selectinload(CartItem.product))
-    )
-    cart_items = result.scalars().all()
-    return {
-        "cart_id": cart.id,
-        "items": [
-            {
-                "item_id": item.item_id,
-                "quantity": item.quantity,
-                "title": item.title,
-                "shortDescription": item.short_description,
-                "longDescription": item.short_description,
-                "images": item.images,
-            }
-            for item in cart_items
-        ]
-}
+    try:
+        # Ensure the user_id is a UUID object
+        user_id = str(user_id) if isinstance(user_id, UUID) else user_id
+        logger.debug(f"Searching for cart with user_id: {user_id}")
+
+        # Find the user's cart
+        result = await db.execute(select(Cart).filter(Cart.user_id == user_id))
+        cart = result.scalars().first()
+
+        if not cart:
+            logger.warning(f"No cart found for user_id: {user_id}")
+            raise ValueError("Cart not found for the user.")
+
+        logger.debug(f"Cart found: {cart.id}")
+
+        result = await db.execute(
+            select(CartItem)
+            .filter(CartItem.cart_id == cart.id)
+            .options(selectinload(CartItem.product))
+        )
+        
+        cart_items = result.scalars().all()
+        logger.debug(f"Cart items fetched: {cart_items}")
+
+        logger.debug(f"Cart contains {len(cart_items)} items.")
+
+        # Calculate total cost by summing the price * quantity for each item
+        total_cost = sum(item.price * item.quantity for item in cart_items)
+        logger.info(f"Total cost calculated: {total_cost}")
+
+        # Log the prices for each item in the cart
+        # for item in cart_items:
+        #     logger.debug(f"Item ID: {item.item_id}, Price: {item.price}, Quantity: {item.quantity}")
+        
+        for item in cart_items:
+            logger.debug(f"Item ID: {item.item_id}, Price: {item.price}")
+
+
+
+        # Prepare the response
+        response = {
+            "cart_id": cart.id,
+            "items": [
+                {
+                    "item_id": item.item_id,
+                    "quantity": item.quantity,
+                    "title": item.title,
+                    "shortDescription": item.short_description,
+                    "longDescription": item.long_description,
+                    "price": item.price,
+                    "total_price": item.price * item.quantity,
+                    "images": item.images,
+                }
+                for item in cart_items
+            ],
+            "total_cost": total_cost,
+        }
+
+
+        logger.debug(f"Response prepared: {response}")
+
+        # Return the response
+        return response
+
+    except Exception as e:
+        logger.error(f"Error preparing response: {e}")
+        raise
+
+
+
 
 
 
 async def checkout(db: AsyncSession, user_id: str):
-    # Find the user's cart
     result = await db.execute(select(Cart).filter(Cart.user_id == user_id))
     cart = result.scalars().first()
     if not cart:
         raise ValueError("Cart not found for the user.")
 
-    # Retrieve all items in the cart
     result = await db.execute(
         select(CartItem).filter(CartItem.cart_id == cart.id).options(selectinload(CartItem.product))
     )
@@ -124,11 +178,7 @@ async def checkout(db: AsyncSession, user_id: str):
     if not cart_items:
         raise ValueError("Cart is empty.")
 
-    # Calculate total price
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
-
-    # Proceed with payment logic here
-    # ...
+    total_price = sum(item.price * item.quantity for item in cart_items)
 
     # Clear the cart after successful payment
     for item in cart_items:
@@ -136,6 +186,9 @@ async def checkout(db: AsyncSession, user_id: str):
     await db.commit()
 
     return {"message": "Checkout successful.", "total_price": total_price}
+
+
+
 
 
 async def update_item_quantity(db: AsyncSession, user_id: str, product_id: str, quantity: int):

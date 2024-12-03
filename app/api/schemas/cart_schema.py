@@ -18,18 +18,30 @@ class UpdateQuantitySchema(BaseModel):
     quantity: int
 
 
+# class CartItemSchema(BaseModel):
+#     item_id: UUID
+#     quantity: int
+#     title: Optional[str]
+#     shortDescription: Optional[str]
+#     longDescription: Optional[str]
+#     images: Optional[str]
+    
 class CartItemSchema(BaseModel):
     item_id: UUID
     quantity: int
-    title: Optional[str]
+    title: str
     shortDescription: Optional[str]
     longDescription: Optional[str]
+    price: float
+    total_price: float
     images: Optional[str]
+
 
 
 class CartResponse(BaseModel):
     cart_id: UUID
     items: List[CartItemSchema]
+    total_cost: float
 
 
 class CheckoutResponse(BaseModel):
