@@ -1,3 +1,4 @@
+import json
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -13,9 +14,27 @@ from app.api.config.erp_config import FRAPPE_URL, HEADERS
 from app.api.schemas.product_schema import ItemUpdateRequest
 
 
+import logging
 
-API_KEY = "your_api_key"
-API_SECRET = "your_api_secret"
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,  # Adjust to DEBUG for more detailed logs
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("product_fetch.log"),  # Logs to a file
+        logging.StreamHandler()  # Also outputs logs to the console
+    ]
+)
+
+
+
+API_KEY = "d353644b94687d8"
+API_SECRET = "b5cb8b2a4e87792"
 
 async def fetch_products_from_api(client, url, headers):
     """
@@ -41,43 +60,66 @@ async def fetch_products_from_api(client, url, headers):
             status_code=500,
             detail=f"{error_message}\nTraceback: {error_traceback}"
         )
-
-
+        
+        
+        
+        
+        
 async def save_product_to_db(db: AsyncSession, product_data: dict):
     """
     Save a product to the database if it does not already exist.
     """
-    # Check if the product already exists using a unique identifier (e.g., product_code)
-    query = select(Product).where(Product.product_code == product_data.get("name"))
+
+    # Log the type and content of product_data
+    logger.debug(f"product_data type: {type(product_data)}")
+    logger.debug(f"product_data content: {product_data}")
+
+    # Validate product_data
+    if not isinstance(product_data, dict):
+        raise ValueError("product_data must be a dictionary")
+
+    # Extract product fields with default values
+    product_code = product_data.get("name")
+    if not product_code:
+        raise ValueError("Product data must include a 'name' field.")
+    
+    item_name = product_data.get("item_name", "Untitled Product")
+    description = product_data.get("description", "No description provided.")
+    price = product_data.get("price", 0.0)
+    images = product_data.get("images", [])
+    product_image = images[0] if images else None
+
+    # Check if the product already exists
+    query = select(Product).where(Product.product_code == product_code)
     result = await db.execute(query)
     existing_product = result.scalars().first()
 
-    # If the product doesn't exist, create and save the product
-    if not existing_product:
-        images = product_data.get("images", [])
-        product_image = images[0] if images else None
+    if existing_product:
+        return existing_product
 
-        product_price = product_data.get("price")  # Ensure to get the product price from the API response
-
-        # Create and save the product in the database
-        db_product = Product(
-            id=uuid.uuid4(),
-            product_code=product_data.get("name"),  # Ensure unique identifier
-            product_title=product_data.get("item_name"),
-            product_description=product_data.get("description"),
-            product_image=product_image,
-            product_price=product_price,  # Storing the price here
-        )
+    # Create a new product
+    db_product = Product(
+        id=uuid.uuid4(),
+        product_code=product_code,
+        product_title=item_name,
+        product_description=description,
+        product_image=product_image,
+        product_price=price,
+    )
+    
+    try:
         db.add(db_product)
         await db.commit()
         await db.refresh(db_product)
         return db_product
-    else:
-        # If the product exists, return it (no new product saved)
-        return existing_product
+    except Exception as e:
+        await db.rollback()
+        raise RuntimeError(f"Failed to save product: {e}")
 
 
-async def process_and_store_products(db: AsyncSession, products: list):
+
+
+async def process_products(db: AsyncSession, products: list):
     """
     Process each product, save to the database, and format for response.
     """
@@ -94,12 +136,11 @@ async def process_and_store_products(db: AsyncSession, products: list):
             "short Description": product.get("description"),
             "long Description": product.get("description"),
             "images": product.get("images", []),
-            "price": product.get("price"),  # Include price in the formatted response
-            "buttons": [
-                {"name": "Learn More", "styles": "button-style-purple"},
-                {"name": "Add to Cart", "styles": "button-style-purple"},
-                {"name": "Order Now", "styles": "button-style-purple"},
-            ]
+            #"price": product.get("price"),
+            # "standard price": product.get("standard_rate"),
+            # "custom price": product.get("custom_rate"),
+            # "standard_training_and_setup": product.get("standard_training_and_setup"),
+            # "custom_training_and_setup": product.get("custom_training_and_setup")
         }
         formatted_products.append(formatted_product)
     return formatted_products
@@ -111,7 +152,7 @@ async def get_products(db: AsyncSession):
     """
     Orchestrate the fetching, processing, and saving of products.
     """
-    url = "http://clientportal:8080/api/method/clientportalapp.products.get_products_pricing"
+    url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
     headers = {
         "Authorization": f"token {API_KEY}:{API_SECRET}"
     }
@@ -120,7 +161,7 @@ async def get_products(db: AsyncSession):
         data = await fetch_products_from_api(client, url, headers)
 
     products = data.get("message", [])
-    return await process_and_store_products(db, products)
+    return await process_products(db, products)
 
 
 
@@ -130,14 +171,14 @@ async def get_products(db: AsyncSession):
 
 
 
-API_KEY = "e5c55a245ee4275"
-API_SECRET = "272ba90f78ddcfa"
+API_KEY = "d353644b94687d8"
+API_SECRET = "b5cb8b2a4e87792"
 
 async def fetch_product_from_api(name: str) -> dict:
     """
     Fetch product data from the external API by name.
     """
-    url = f"http://clientportal:8080/api/method/clientportalapp.products.get_product_pricing_by_idx?name={name}"
+    url = f"http://clientportal.org:8080/api/method/clientportalapp.products.get_product_pricing_by_idx?name={name}"
     headers = {
         "Authorization": f"token {API_KEY}:{API_SECRET}"
     }
@@ -147,11 +188,22 @@ async def fetch_product_from_api(name: str) -> dict:
             response = await client.get(url, headers=headers)
             response.raise_for_status()
     except httpx.HTTPStatusError as exc:
+        logging.error(f"HTTP error while fetching product: {exc.response.status_code} - {exc.response.text}")
         raise HTTPException(status_code=exc.response.status_code, detail="Error fetching product")
     except Exception as e:
+        logging.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-    return response.json()
+    # Log the fetched product (pretty-printed JSON)
+    product_data = response.json()
+    logging.info(f"Fetched product data for '{name}':\n{json.dumps(product_data, indent=4)}")
+
+    return product_data
+
+
+
+
+
 
 async def format_product_data(product: dict) -> dict:
     """
@@ -192,15 +244,23 @@ async def format_product_data(product: dict) -> dict:
             }
             for review in product.get("reviews", [])
         ],
-        "plan_details": [
+        "pricing_details": [
             {
-                "no_of_teamMembers": "1 - 10",
-                "cost": product.get("price", "Price not available"),
-                "billingCycle": "monthly"
+                #"no_of_teamMembers": "1 - 10",
+                #"cost": product.get("price", "Price not available"),
+                "standard_rate": product.get("standard_rate"),
+                "custom_rate": product.get("custom_rate"),
+                "standard_training_and_setup": product.get("standard_training_and_setup"),
+                "custom_training_and_setup": product.get("custom_training_and_setup"),
+                "billingCycle": "yearly"
             }
         ]
     }
     return formatted_product
+
+
+
+
 
 async def fetch_and_save_product(name: str, db: AsyncSession) -> dict:
     """
