@@ -34,7 +34,7 @@ logging.basicConfig(
 
 
 API_KEY = "d353644b94687d8"
-API_SECRET = "b5cb8b2a4e87792"
+API_SECRET = "486cd7c1107edc12"
 
 async def fetch_products_from_api(client, url, headers):
     """
