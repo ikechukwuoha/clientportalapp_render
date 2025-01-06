@@ -2,12 +2,12 @@ import json
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.database.db import get_db
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from app.api.models.product import Product
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import FastAPI, APIRouter, Request
 from app.api.schemas.product_schema import ItemUpdateRequest
-from app.api.services.product_services import fetch_and_save_product, get_products
+from app.api.services.product_services import fetch_and_save_product, fetch_products_from_db
 
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -23,15 +23,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-API_KEY = "e5c55a245ee4275"
-API_SECRET = "272ba90f78ddcfa"
 
 @router.get("/get-products", tags=["product"])
 async def get_all_products(db: AsyncSession = Depends(get_db)):
     """
-    Fetch products from the external API, save them to the database, and return formatted products.
+    Fetch and save the product, then return it.
     """
-    return await get_products(db)
+    try:
+        # Call the service to fetch and save the product
+        product = await fetch_products_from_db(db)
+        return product
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logging.error(f"Unexpected error in get_all_products: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error fetching product data")
 
 
     
@@ -48,7 +54,7 @@ async def get_product(name: str, db: AsyncSession = Depends(get_db)):
 
 
 
-@router.post("/get_data_from_erp")
+@router.post("/get_data_from_erp", tags=["product"])
 async def get_data_from_erp(request: Request, db: AsyncSession = Depends(get_db)):
     try:
         raw_body = await request.body()

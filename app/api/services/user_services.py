@@ -3,7 +3,6 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.api.crud.crud import create_cart
 from app.api.repository.users_repository import create_user, get_user_by_email
 from app.api.schemas.user_schema import UserCreate, UserLogin
 from app.api.security.security import create_access_token, create_refresh_token, hash_password, verify_password
@@ -35,8 +34,6 @@ async def signup(db: AsyncSession, user: UserCreate) -> str:
     
     created_user = await create_user(db, user)
     
-    # Automatically create a cart for the new user
-    await create_cart(db, user_id=created_user.id)
 
     # Send verification email
     await email_service.handle_email_verification(db, user.email, user.first_name)

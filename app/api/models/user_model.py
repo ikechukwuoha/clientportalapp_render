@@ -30,5 +30,3 @@ class User(Base):
     # Many-to-many relationship with permissions
     permissions = relationship("Permission", secondary='user_permissions', back_populates="users")
     
-    # Relationship to Cart
-    cart = relationship('Cart', back_populates='user', uselist=False)
