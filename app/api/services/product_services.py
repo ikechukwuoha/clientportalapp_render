@@ -27,135 +27,6 @@ logging.basicConfig(
     ]
 )
 
-# async def fetch_and_save_product(db: AsyncSession) -> dict:
-#     """
-#     Fetch product data from the Frappe API, format it, and save it to the database.
-#     """
-#     url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
-
-#     # Fetch product data from the API
-#     async with httpx.AsyncClient() as client:
-#         try:
-#             response = await client.get(url)
-#             response.raise_for_status()
-#             product_data = response.json().get("message", {}).get("items", [])
-#         except httpx.HTTPStatusError as exc:
-#             logging.error(f"HTTP error while fetching product: {exc.response.status_code} - {exc.response.text}")
-#             raise HTTPException(status_code=exc.response.status_code, detail="Error fetching product")
-#         except Exception as e:
-#             logging.error(f"Unexpected error: {str(e)}")
-#             raise HTTPException(status_code=500, detail=str(e))
-
-  
-#     updated_products = []
-
-#     for item in product_data:
-#         plans = {}
-#         for plan_name in ["Standard Plan", "Custom Plan", "Free Plan"]:
-#             plan_descriptions = item.get("plan_descriptions", {})
-#             plan_items = plan_descriptions.get(plan_name, [])
-#             descriptions = [desc.get("description") for desc in plan_items]
-
-            
-#             plan_pricing = item.get("prices", {}).get(plan_name, {}).copy() 
-
-           
-#             if plan_name == "Standard Plan":
-#                 # Remove custom_rate from the "Standard Plan"
-#                 plan_pricing.pop("custom_rate", None)
-#                 plan_pricing.pop("custom_training_and_setup", None)
-#                 plan_pricing.pop("price_list_rate", None)
-
-#             elif plan_name == "Custom Plan":
-#                 # Remove standard_rate from the "Custom Plan"
-#                 plan_pricing.pop("standard_rate", None)
-#                 plan_pricing.pop("standard_training_and_setup", None)
-#                 plan_pricing.pop("price_list_rate", None)
-
-#             elif plan_name == "Free Plan":
-#                 # Remove both standard_rate and custom_rate from the "Free Plan"
-#                 plan_pricing.pop("standard_rate", None)
-#                 plan_pricing.pop("custom_rate", None)
-#                 plan_pricing.pop("standard_training_and_setup", None)
-#                 plan_pricing.pop("custom_training_and_setup", None)
-#                 plan_pricing.pop("price_list_rate", None)
-
-#             # Add the modified plan data to the plans dictionary
-#             plans[plan_name] = {
-#                 "description": descriptions,
-#                 "pricing": plan_pricing
-#             }
-
-#         #print(f"Plans for Product {item.get('name')}: {plans}") 
-
-        
-#         formatted_product = {
-#             "product_id": item.get("name"),
-#             "product_name": item.get("item_name"),
-#             "item_group": item.get("item_group", "Unknown"),
-#             "product_description": item.get("description", "No description provided."),
-#             "product_image": item.get("images", [None])[0],
-#             "images": item.get("images", []),
-#             "benefits": item.get("benefits", []),
-#             "plans": plans,
-#         }
-
-#         # Check if the product already exists in the database
-#         query = select(Product).where(Product.product_code == formatted_product["product_id"])
-#         result = await db.execute(query)
-#         existing_product = result.scalars().first()
-
-#         if not existing_product:
-#             new_product = Product(
-#                 id=uuid.uuid4(),
-#                 product_code=formatted_product["product_id"],
-#                 product_title=formatted_product["product_name"],
-#                 item_group=formatted_product["item_group"],
-#                 product_description=formatted_product["product_description"],
-#                 product_image=formatted_product["product_image"],
-#                 images=formatted_product["images"],
-#                 benefits=formatted_product["benefits"],
-#                 plans=formatted_product["plans"],
-#             )
-#             db.add(new_product)
-#             updated_products.append(new_product)
-#         else:
-           
-#             existing_product.product_title = formatted_product["product_name"]
-#             existing_product.item_group = formatted_product["item_group"]
-#             existing_product.product_description = formatted_product["product_description"]
-#             existing_product.product_image = formatted_product["product_image"]
-#             existing_product.images = formatted_product["images"]
-#             existing_product.benefits = formatted_product["benefits"]
-#             existing_product.plans = formatted_product["plans"]
-#             updated_products.append(existing_product)
-
-#         await db.commit()
-
-#         # Serialize products for response
-#         response_products = [
-#             {
-#                 "id": str(product.id),
-#                 "product_code": product.product_code,
-#                 "product_title": product.product_title,
-#                 "item_group": product.item_group,
-#                 "product_description": product.product_description,
-#                 "product_image": product.product_image,
-#                 "images": product.images,
-#                 "benefits": product.benefits,
-#                 "plans": {
-#                     plan_name: {
-#                         "description": plan["description"],
-#                         "pricing": plan["pricing"]
-#                     }
-#                     for plan_name, plan in product.plans.items()
-#                 },
-#             }
-#             for product in updated_products
-#         ]
-
-#         return {"message": "Product Fetched successfully ", "products": response_products}
-
 
 async def fetch_and_save_product(db: AsyncSession) -> dict:
     url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
@@ -289,18 +160,7 @@ async def fetch_products_from_db(db: AsyncSession) -> dict:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+# This Function will be used to update a doctype in frappe I.e the site doctype when a user purchases an item
 def update_item_in_frappe(payload: ItemUpdateRequest):
     # Update the Item Doctype in Frappe
     item_data = {
@@ -375,3 +235,144 @@ def update_item_in_frappe(payload: ItemUpdateRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating item: {str(e)}")
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+# async def fetch_and_save_product(db: AsyncSession) -> dict:
+#     """
+#     Fetch product data from the Frappe API, format it, and save it to the database.
+#     """
+#     url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
+
+#     # Fetch product data from the API
+#     async with httpx.AsyncClient() as client:
+#         try:
+#             response = await client.get(url)
+#             response.raise_for_status()
+#             product_data = response.json().get("message", {}).get("items", [])
+#         except httpx.HTTPStatusError as exc:
+#             logging.error(f"HTTP error while fetching product: {exc.response.status_code} - {exc.response.text}")
+#             raise HTTPException(status_code=exc.response.status_code, detail="Error fetching product")
+#         except Exception as e:
+#             logging.error(f"Unexpected error: {str(e)}")
+#             raise HTTPException(status_code=500, detail=str(e))
+
+  
+#     updated_products = []
+
+#     for item in product_data:
+#         plans = {}
+#         for plan_name in ["Standard Plan", "Custom Plan", "Free Plan"]:
+#             plan_descriptions = item.get("plan_descriptions", {})
+#             plan_items = plan_descriptions.get(plan_name, [])
+#             descriptions = [desc.get("description") for desc in plan_items]
+
+            
+#             plan_pricing = item.get("prices", {}).get(plan_name, {}).copy() 
+
+           
+#             if plan_name == "Standard Plan":
+#                 # Remove custom_rate from the "Standard Plan"
+#                 plan_pricing.pop("custom_rate", None)
+#                 plan_pricing.pop("custom_training_and_setup", None)
+#                 plan_pricing.pop("price_list_rate", None)
+
+#             elif plan_name == "Custom Plan":
+#                 # Remove standard_rate from the "Custom Plan"
+#                 plan_pricing.pop("standard_rate", None)
+#                 plan_pricing.pop("standard_training_and_setup", None)
+#                 plan_pricing.pop("price_list_rate", None)
+
+#             elif plan_name == "Free Plan":
+#                 # Remove both standard_rate and custom_rate from the "Free Plan"
+#                 plan_pricing.pop("standard_rate", None)
+#                 plan_pricing.pop("custom_rate", None)
+#                 plan_pricing.pop("standard_training_and_setup", None)
+#                 plan_pricing.pop("custom_training_and_setup", None)
+#                 plan_pricing.pop("price_list_rate", None)
+
+#             # Add the modified plan data to the plans dictionary
+#             plans[plan_name] = {
+#                 "description": descriptions,
+#                 "pricing": plan_pricing
+#             }
+
+#         #print(f"Plans for Product {item.get('name')}: {plans}") 
+
+        
+#         formatted_product = {
+#             "product_id": item.get("name"),
+#             "product_name": item.get("item_name"),
+#             "item_group": item.get("item_group", "Unknown"),
+#             "product_description": item.get("description", "No description provided."),
+#             "product_image": item.get("images", [None])[0],
+#             "images": item.get("images", []),
+#             "benefits": item.get("benefits", []),
+#             "plans": plans,
+#         }
+
+#         # Check if the product already exists in the database
+#         query = select(Product).where(Product.product_code == formatted_product["product_id"])
+#         result = await db.execute(query)
+#         existing_product = result.scalars().first()
+
+#         if not existing_product:
+#             new_product = Product(
+#                 id=uuid.uuid4(),
+#                 product_code=formatted_product["product_id"],
+#                 product_title=formatted_product["product_name"],
+#                 item_group=formatted_product["item_group"],
+#                 product_description=formatted_product["product_description"],
+#                 product_image=formatted_product["product_image"],
+#                 images=formatted_product["images"],
+#                 benefits=formatted_product["benefits"],
+#                 plans=formatted_product["plans"],
+#             )
+#             db.add(new_product)
+#             updated_products.append(new_product)
+#         else:
+           
+#             existing_product.product_title = formatted_product["product_name"]
+#             existing_product.item_group = formatted_product["item_group"]
+#             existing_product.product_description = formatted_product["product_description"]
+#             existing_product.product_image = formatted_product["product_image"]
+#             existing_product.images = formatted_product["images"]
+#             existing_product.benefits = formatted_product["benefits"]
+#             existing_product.plans = formatted_product["plans"]
+#             updated_products.append(existing_product)
+
+#         await db.commit()
+
+#         # Serialize products for response
+#         response_products = [
+#             {
+#                 "id": str(product.id),
+#                 "product_code": product.product_code,
+#                 "product_title": product.product_title,
+#                 "item_group": product.item_group,
+#                 "product_description": product.product_description,
+#                 "product_image": product.product_image,
+#                 "images": product.images,
+#                 "benefits": product.benefits,
+#                 "plans": {
+#                     plan_name: {
+#                         "description": plan["description"],
+#                         "pricing": plan["pricing"]
+#                     }
+#                     for plan_name, plan in product.plans.items()
+#                 },
+#             }
+#             for product in updated_products
+#         ]
+
+#         return {"message": "Product Fetched successfully ", "products": response_products}

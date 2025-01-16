@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
     SESSION_SECRET_KEY: str
+    PAYSTACK_SECRET_KEY:str
 
     
     
@@ -34,8 +35,8 @@ class Settings(BaseSettings):
     ROUTE_PREFIX: str = "/api"
 
     class Config:
-        env_file = ".env"  # Load settings from .env file
-        extra = "allow"    # Allow extra fields in the environment file
+        env_file = ".env"
+        extra = "allow"
 
 # Initialize settings
 settings = Settings()

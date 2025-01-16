@@ -26,6 +26,7 @@ class User(Base):
 
     # Relationship with Role (many-to-one)
     role = relationship("Role", back_populates="users")
+    transactions = relationship("UserTransactions", back_populates="user", cascade="all, delete-orphan")
     
     # Many-to-many relationship with permissions
     permissions = relationship("Permission", secondary='user_permissions', back_populates="users")
