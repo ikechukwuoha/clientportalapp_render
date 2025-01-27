@@ -44,15 +44,36 @@ async def signup(db: AsyncSession, user: UserCreate) -> str:
         "first_name": created_user.first_name,
         "last_name": created_user.last_name,
         "role": created_user.role_id,
-        "status": created_user.is_active,
+        "is_active": created_user.is_active,
         "email": created_user.email,
         # Add other fields as needed
     }
+    
+    access_token = await create_access_token(user_data=user_data)
+    refresh_token = await create_refresh_token(user_data=user_data)
 
-    return JSONResponse(
+    response = JSONResponse(
         status_code=201,  # HTTP status for "Created"
         content={"message": "User created. Please check your email to verify your account.", "user_data": user_data}
     )
+    
+    # Set cookies
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True, 
+        samesite="Strict",
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="Strict",
+    )
+    
+    return response
 
     
     
@@ -83,7 +104,7 @@ async def signin(db: AsyncSession, user: UserLogin) -> JSONResponse:
     response = JSONResponse(
         content={
             "message": "Login successful",
-            "user": token_data,
+            "user_data": token_data,
         }
     )
     

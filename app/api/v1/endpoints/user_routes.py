@@ -30,6 +30,15 @@ async def signin_route(user: UserLogin, db: AsyncSession = Depends(get_db)):
 
 
 
+@router.post("/auth/logout", status_code=status.HTTP_200_OK)
+async def logout(response: Response):
+    """
+    Logs out the user by clearing cookies.
+    """
+    response.delete_cookie(key="access_token", httponly=True)
+    response.delete_cookie(key="refresh_token", httponly=True)
+    return {"message": "Logout successful"}
+
 
 
 @router.get("/all-users", response_model=List[UserResponse], tags=["users-related-routes"])
@@ -47,4 +56,5 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
 @router.get("/user-role/{user_id}",  tags=["users-related-routes"])
 async def get_user_role(user_id: uuid.UUID, role_name: str = Depends(get_role_name)):
     return {"user_id": user_id, "role_name": role_name}
+
 

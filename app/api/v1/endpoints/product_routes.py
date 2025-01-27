@@ -24,20 +24,44 @@ router = APIRouter()
 
 
 
+# @router.get("/get-products", tags=["product"])
+# async def get_all_products(db: AsyncSession = Depends(get_db)):
+#     """
+#     Fetch and save the product, then return it.
+#     """
+#     try:
+#         # Call the service to fetch and save the product
+#         print("THEM DON HIT ME")
+#         product = await fetch_products_from_db(db)
+#         return product
+#     except HTTPException as e:
+#         raise e
+#     except Exception as e:
+#         logging.error(f"Unexpected error in get_all_products: {str(e)}")
+#         raise HTTPException(status_code=500, detail="Error fetching product data")
+
+
 @router.get("/get-products", tags=["product"])
 async def get_all_products(db: AsyncSession = Depends(get_db)):
     """
-    Fetch and save the product, then return it.
+    Fetch products from the database. If no data is found, fetch from API and save it to the database.
     """
     try:
-        # Call the service to fetch and save the product
-        product = await fetch_products_from_db(db)
-        return product
+        # Attempt to fetch products from the database
+        products = await fetch_products_from_db(db)
+
+        # If no products are found in the database, fetch and save products from the external API
+        if not products["products"]:
+            logging.info("No products found in the database. Fetching from external API.")
+            products = await fetch_and_save_product(db)
+
+        return products
     except HTTPException as e:
         raise e
     except Exception as e:
         logging.error(f"Unexpected error in get_all_products: {str(e)}")
         raise HTTPException(status_code=500, detail="Error fetching product data")
+
 
 
     

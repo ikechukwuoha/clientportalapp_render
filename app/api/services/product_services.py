@@ -95,6 +95,7 @@ async def fetch_and_save_product(db: AsyncSession) -> dict:
             updated_products.append(existing_product)
 
         await db.commit()
+        logging.error(f"Error committing to database: {str(e)}")
 
     response_products = [
         {
@@ -112,6 +113,9 @@ async def fetch_and_save_product(db: AsyncSession) -> dict:
     ]
 
     return {"message": "Product Fetched successfully", "products": response_products}
+
+
+
 
 
 async def fetch_products_from_db(db: AsyncSession) -> dict:

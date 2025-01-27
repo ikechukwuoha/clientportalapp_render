@@ -11,13 +11,12 @@ from app.api.security.payment_verification import verify_paystack_transaction
 # from app.api.utils.fr_utils import update_frappe_doctype  # Utility to update Frappe ER
 import httpx
 
+from app.api.utils.frappe_utils import create_frappe_site, store_site_data
 
 
 
-async def store_transaction(
-    transaction_data: dict,
-    db: AsyncSession = Depends(get_db)
-):
+
+async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(get_db)):
     """
     Store a transaction from the frontend, validate it with Paystack, and store the response in the database.
     """
@@ -107,6 +106,39 @@ async def store_transaction(
                 status_code=400, 
                 detail="Invalid Paystack transaction status. Please verify your payment reference."
             )
+            
+        # Dynamically trigger Frappe site creation if Paystack status is "success"
+        # if paystack_status == "success":
+        #     admin_password = "admin123456789"
+        #     mysql_password= "Oreoluwa@555"
+        #     frappe_site_creation_response = await create_frappe_site({
+        #         "email": email,
+        #         "site_name": site_name,
+        #         "admin_password": admin_password,
+        #         "mysql_password": mysql_password
+        #     })
+
+        #     if "status" in frappe_site_creation_response:
+        #         if frappe_site_creation_response["status"] == "failed":
+        #             raise HTTPException(
+        #                 status_code=500,
+        #                 detail=frappe_site_creation_response["message"]
+        #             )
+        #         elif "successfully" in frappe_site_creation_response["message"]:
+        #             # Site creation was successful
+        #             pass
+        #         else:
+        #             raise HTTPException(
+        #                 status_code=500,
+        #                 detail="Unexpected message: " + frappe_site_creation_response["message"]
+        #             )
+        #     else:
+        #         raise HTTPException(
+        #             status_code=500,
+        #             detail="Unknown error occurred during site creation."
+        #         )
+
+
 
         # Create a new transaction record
         users_transactions = UserTransactions(
@@ -133,8 +165,23 @@ async def store_transaction(
 
         # Save the transaction to the database
         db.add(users_transactions)
+        logging.info(f"Attempting to save UserTransactions: {users_transactions}")
+
         await db.commit()
         await db.refresh(users_transactions)
+        #Trigger Frappe update
+        frappe_response = await store_site_data({
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "phone": phone,
+            "country": country,
+            "company_name": company_name,
+            "organization": organization,
+            "site_name": site_name,
+            "status": payment_status,
+            "product": "Hello World!!"
+        })
 
         return {
             "message": "Transaction stored successfully",
@@ -145,6 +192,7 @@ async def store_transaction(
                 "payment_status": users_transactions.payment_status,
                 "paystack_response": users_transactions.paystack_response,
             },
+            "frappe_update_response": frappe_response
         }
 
     except HTTPException as e:
