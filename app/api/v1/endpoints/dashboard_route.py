@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends, Query
-from app.api.services.dashboard_services import fetch_total_users, fetch_active_users, fetch_active_modules, fetch_active_sites, fetch_active_users_dynamic, fetch_user_data, fetch_user_data_count
+from app.api.services.dashboard_services import fetch_total_users, fetch_active_users, fetch_active_modules, fetch_active_sites, fetch_active_users_dynamic, fetch_user_data, fetch_user_data_count, get_site_data
 from sqlalchemy import select
 from app.api.database.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from fastapi import APIRouter, Depends, HTTPException
+
+
+
+
 
 router = APIRouter()
 
@@ -54,3 +60,22 @@ async def get_overview_count(email: str = Query(..., description="The email to f
     Get Data
     """
     return await fetch_user_data_count(email=email)
+
+
+
+
+
+
+@router.get("/sites-data", tags=["dashboard"])
+async def fetch_site_data(id: str, db: AsyncSession = Depends(get_db)):
+    """
+    Fetch site data for the given user ID.
+    """
+    if not id:
+        raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
+
+    try:
+        data = await get_site_data(id=id, db=db)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

@@ -37,6 +37,8 @@ class TransactionPayload(BaseModel):
     plan: str
     quantity: int
     amount: float
+    valid_from: str
+    valid_upto: str
     training_and_setup: bool
     payment_reference: str
     transaction_id: str

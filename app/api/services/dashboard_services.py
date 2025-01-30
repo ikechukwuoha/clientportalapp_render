@@ -16,8 +16,7 @@ from app.api.database.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-
-
+from typing import Optional
 
 
 # API_KEY = os.getenv("API_KEY")
@@ -218,8 +217,7 @@ async def fetch_active_users_dynamic(email: str):
         logging.error(f"HTTP error: {e.response.status_code} - {e.response.text}")
         raise
     
-    
-    
+
 
 
 async def fetch_user_data(email: str, db: AsyncSession):
@@ -238,7 +236,6 @@ async def fetch_user_data(email: str, db: AsyncSession):
             }
         }
 
-    # Extract all sites dynamically
     sites = active_sites_response["sites"].get("sites", {}).get("message", [])
     if not sites:
         logging.warning("No sites found in the `message` key.")
@@ -257,21 +254,18 @@ async def fetch_user_data(email: str, db: AsyncSession):
     active_users_count = 0
     active_modules_count = 0
 
-    # List to hold site-specific data
     sites_data = []
+    
+    # Fetch user from database once, outside the loop
+    result = await db.execute(select(User).filter(User.email == email))
+    user = result.scalar_one_or_none()
 
-    headers = {
-        # "Authorization": f"token {API_KEY}:{API_SECRET}"
-    }
-
-    # Step 2: Loop through all sites and fetch data
     async with httpx.AsyncClient() as client:
         for site in sites:
             site_name = site.get("site_name")
             if not site_name:
                 continue
 
-            # Define dynamic URLs
             urls = {
                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
@@ -279,7 +273,7 @@ async def fetch_user_data(email: str, db: AsyncSession):
             }
 
             try:
-                # Fetch data from each site
+                # Fetch data for current site
                 total_users_response = await client.get(urls["total_users"])
                 total_users_response.raise_for_status()
 
@@ -289,43 +283,34 @@ async def fetch_user_data(email: str, db: AsyncSession):
                 active_modules_response = await client.get(urls["active_modules"])
                 active_modules_response.raise_for_status()
 
-                # Parse responses
+                # Parse responses for current site
                 total_users_data = total_users_response.json().get("message", {})
                 active_users_data = active_users_response.json().get("message", {})
                 active_modules_data = active_modules_response.json().get("message", {})
-                active_sites_data = active_sites_response["sites"]
                 
-                print("Active Sites Data2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222", active_sites_data)
-                
+                # Get counts for current site
+                site_total_users = total_users_data.get("count", 0)
+                site_active_users = active_users_data.get("count", 0)
+                site_active_modules = active_modules_data.get("count", 0)
 
-                # Update totals
-                total_users_count += total_users_data.get("count", 0)
-                active_users_count += active_users_data.get("count", 0)
-                active_modules_count += active_modules_data.get("count", 0)
-                active_sites_count = active_sites_data['totals']['active_sites']
-                # Fetch the active sites from the response
-                actives_sites = active_sites_data['sites'].get('message', [])
+                # Update global totals
+                total_users_count += site_total_users
+                active_users_count += site_active_users
+                active_modules_count += site_active_modules
 
-                # Extract active statuses from all sites
-                active_sites_active = [site.get('active', False) for site in actives_sites]
-                
-                print("ACTIVE SITE COUNT9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", active_sites_active)
-                
-                result = await db.execute(select(User).filter(User.email == email))
-                user = result.scalar_one_or_none() 
-                
-               
-
-                # Add site-specific data to the list
-                existing_site = await db.execute(select(SiteData).filter(SiteData.site_name == site_name))
+                # Add or update site-specific data in the database
+                existing_site = await db.execute(
+                    select(SiteData).filter(SiteData.site_name == site_name)
+                )
                 existing_site = existing_site.scalars().first()
 
                 if existing_site:
-                    # Update existing site
-                    existing_site.total_users_count = total_users_count
-                    existing_site.active_users_count = active_users_count
+                    # Update existing site with its specific counts
+                    existing_site.total_users_count = site_total_users  # Use site-specific count
+                    existing_site.active_users_count = site_active_users  # Use site-specific count
                     existing_site.active_sites = site.get('active', False)
-                    existing_site.active_modules_count = active_modules_count
+                    existing_site.location = site.get('country', None)
+                    existing_site.active_modules_count = site_active_modules  # Use site-specific count
                     existing_site.total_users = total_users_data.get("users", [])
                     existing_site.active_users = active_users_data.get("users", [])
                     existing_site.active_modules = active_modules_data.get("modules", [])
@@ -335,13 +320,14 @@ async def fetch_user_data(email: str, db: AsyncSession):
                         "active_modules": active_modules_data
                     }
                 else:
-                    # Create new site
+                    # Create new site with its specific counts
                     site_data = SiteData(
                         site_name=site_name,
-                        total_users_count=total_users_count,
-                        active_users_count=active_users_count,
+                        total_users_count=site_total_users,  # Use site-specific count
+                        active_users_count=site_active_users,  # Use site-specific count
                         active_sites=site.get('active', False),
-                        active_modules_count=active_modules_count,
+                        location=site.get('country', None),
+                        active_modules_count=site_active_modules,  # Use site-specific count
                         total_users=total_users_data.get("users", []),
                         active_users=active_users_data.get("users", []),
                         active_modules=active_modules_data.get("modules", []),
@@ -350,29 +336,23 @@ async def fetch_user_data(email: str, db: AsyncSession):
                             "active_users": active_users_data,
                             "active_modules": active_modules_data
                         },
-                        user_id=user.id
+                        user_id=user.id if user else None
                     )
                     db.add(site_data)
 
-                # Add site-specific data, including the full site response
+                # Add site-specific data to the response
                 sites_data.append({
-                    #"site_name": site_name,
                     "site_data": site,
                     "total_users": {
-                        "count": total_users_data.get("count", 0),
+                        "count": site_total_users,
                         "users": total_users_data.get("users", [])
                     },
                     "active_users": {
-                        "count": active_users_data.get("count", 0),
+                        "count": site_active_users,
                         "users": active_users_data.get("users", [])
                     },
-                    # "site_data": {  # This is where we add the full site data response
-                    #     "total_users": total_users_data,
-                    #     "active_users": active_users_data,
-                    #     "active_modules": active_modules_data
-                    # },
                     "active_modules": {
-                        "count": active_modules_data.get("count", 0),
+                        "count": site_active_modules,
                         "modules": active_modules_data.get("modules", [])
                     }
                 })
@@ -382,20 +362,199 @@ async def fetch_user_data(email: str, db: AsyncSession):
             except httpx.HTTPStatusError as e:
                 logging.error(f"HTTP error on site {site_name}: {e.response.status_code} - {e.response.text}")
 
-    # Commit the changes to the DB
-    await db.commit()
+        # Commit changes to the database
+        await db.commit()
 
-    # Step 3: Return consolidated data
-    return {
-        "totals": {
-            "total_sites": len(sites),
-            "active_sites": active_sites_count,
-            "total_users": total_users_count,
-            "active_users": active_users_count,
-            "total_active_modules": active_modules_count,
-        },
-        "sites_data": sites_data,
-    }
+        active_sites_count = active_sites_response["sites"]['totals']['active_sites']
+
+        return {
+            "totals": {
+                "total_sites": len(sites),
+                "active_sites": active_sites_count,
+                "total_users": total_users_count,
+                "active_users": active_users_count,
+                "total_active_modules": active_modules_count,
+            },
+            "sites_data": sites_data,
+        }
+
+    
+
+
+# async def fetch_user_data(email: str, db: AsyncSession):
+#     # Step 1: Fetch active sites
+#     active_sites_response = await fetch_active_sites(email=email)
+
+#     if active_sites_response["count"] == 0:
+#         logging.warning("No sites found for the given email.")
+#         return {
+#             "sites_data": [],
+#             "totals": {
+#                 "total_sites": 0,
+#                 "total_users": 0,
+#                 "active_users": 0,
+#                 "active_modules": 0,
+#             }
+#         }
+
+#     # Extract all sites dynamically
+#     sites = active_sites_response["sites"].get("sites", {}).get("message", [])
+#     if not sites:
+#         logging.warning("No sites found in the `message` key.")
+#         return {
+#             "sites_data": [],
+#             "totals": {
+#                 "total_sites": 0,
+#                 "total_users": 0,
+#                 "active_users": 0,
+#                 "active_modules": 0,
+#             }
+#         }
+
+#     # Initialize aggregated totals
+#     total_users_count = 0
+#     active_users_count = 0
+#     active_modules_count = 0
+
+#     # List to hold site-specific data
+#     sites_data = []
+
+#     headers = {
+#         # "Authorization": f"token {API_KEY}:{API_SECRET}"
+#     }
+
+#     # Step 2: Loop through all sites and fetch data
+#     async with httpx.AsyncClient() as client:
+#         for site in sites:
+#             site_name = site.get("site_name")
+#             if not site_name:
+#                 continue
+
+#             # Define dynamic URLs
+#             urls = {
+#                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
+#                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
+#                 "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules",
+#             }
+
+#             try:
+#                 # Fetch data from each site
+#                 total_users_response = await client.get(urls["total_users"])
+#                 total_users_response.raise_for_status()
+
+#                 active_users_response = await client.get(urls["active_users"])
+#                 active_users_response.raise_for_status()
+
+#                 active_modules_response = await client.get(urls["active_modules"])
+#                 active_modules_response.raise_for_status()
+
+#                 # Parse responses
+#                 total_users_data = total_users_response.json().get("message", {})
+#                 active_users_data = active_users_response.json().get("message", {})
+#                 active_modules_data = active_modules_response.json().get("message", {})
+#                 active_sites_data = active_sites_response["sites"]
+                
+#                 print("Active Sites Data2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222", active_sites_data)
+                
+
+#                 # Update totals
+#                 total_users_count += total_users_data.get("count", 0)
+#                 active_users_count += active_users_data.get("count", 0)
+#                 active_modules_count += active_modules_data.get("count", 0)
+#                 active_sites_count = active_sites_data['totals']['active_sites']
+#                 # Fetch the active sites from the response
+#                 actives_sites = active_sites_data['sites'].get('message', [])
+
+#                 # Extract active statuses from all sites
+#                 active_sites_active = [site.get('active', False) for site in actives_sites]
+                
+#                 print("ACTIVE SITE COUNT9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999", active_sites_active)
+                
+#                 result = await db.execute(select(User).filter(User.email == email))
+#                 user = result.scalar_one_or_none() 
+                
+               
+
+#                 # Add site-specific data to the list
+#                 existing_site = await db.execute(select(SiteData).filter(SiteData.site_name == site_name))
+#                 existing_site = existing_site.scalars().first()
+
+#                 if existing_site:
+#                     # Update existing site
+#                     existing_site.total_users_count = total_users_count
+#                     existing_site.active_users_count = active_users_count
+#                     existing_site.active_sites = site.get('active', False)
+#                     existing_site.active_modules_count = active_modules_count
+#                     existing_site.total_users = total_users_data.get("users", [])
+#                     existing_site.active_users = active_users_data.get("users", [])
+#                     existing_site.active_modules = active_modules_data.get("modules", [])
+#                     existing_site.sites_data = {
+#                         "total_users": total_users_data,
+#                         "active_users": active_users_data,
+#                         "active_modules": active_modules_data
+#                     }
+#                 else:
+#                     # Create new site
+#                     site_data = SiteData(
+#                         site_name=site_name,
+#                         total_users_count=total_users_count,
+#                         active_users_count=active_users_count,
+#                         active_sites=site.get('active', False),
+#                         active_modules_count=active_modules_count,
+#                         total_users=total_users_data.get("users", []),
+#                         active_users=active_users_data.get("users", []),
+#                         active_modules=active_modules_data.get("modules", []),
+#                         sites_data={
+#                             "total_users": total_users_data,
+#                             "active_users": active_users_data,
+#                             "active_modules": active_modules_data
+#                         },
+#                         user_id=user.id
+#                     )
+#                     db.add(site_data)
+
+#                 # Add site-specific data, including the full site response
+#                 sites_data.append({
+#                     #"site_name": site_name,
+#                     "site_data": site,
+#                     "total_users": {
+#                         "count": total_users_data.get("count", 0),
+#                         "users": total_users_data.get("users", [])
+#                     },
+#                     "active_users": {
+#                         "count": active_users_data.get("count", 0),
+#                         "users": active_users_data.get("users", [])
+#                     },
+#                     # "site_data": {  # This is where we add the full site data response
+#                     #     "total_users": total_users_data,
+#                     #     "active_users": active_users_data,
+#                     #     "active_modules": active_modules_data
+#                     # },
+#                     "active_modules": {
+#                         "count": active_modules_data.get("count", 0),
+#                         "modules": active_modules_data.get("modules", [])
+#                     }
+#                 })
+
+#             except httpx.RequestError as e:
+#                 logging.error(f"Request error on site {site_name}: {e}")
+#             except httpx.HTTPStatusError as e:
+#                 logging.error(f"HTTP error on site {site_name}: {e.response.status_code} - {e.response.text}")
+
+#     # Commit the changes to the DB
+#     await db.commit()
+
+#     # Step 3: Return consolidated data
+#     return {
+#         "totals": {
+#             "total_sites": len(sites),
+#             "active_sites": active_sites_count,
+#             "total_users": total_users_count,
+#             "active_users": active_users_count,
+#             "total_active_modules": active_modules_count,
+#         },
+#         "sites_data": sites_data,
+#     }
 
 
 
@@ -523,6 +682,50 @@ async def fetch_user_data_count(email: str):
 
 
 
+
+async def get_site_data(id: str, db: AsyncSession):
+    """
+    Fetch site data from the database for the given user ID.
+    """
+    # Query the database for site data matching the user's ID
+    result = await db.execute(select(SiteData).where(SiteData.user_id == id))
+    user_sites = result.scalars().all()
+
+    # If data exists, process and return it
+    if user_sites:
+        return {
+            "totals": {
+                "total_sites": len(user_sites),
+                "active_sites": sum(1 for site in user_sites if site.active_sites),
+                "total_users": sum(site.total_users_count for site in user_sites),
+                "active_users": sum(site.active_users_count for site in user_sites),
+                "total_active_modules": sum(site.active_modules_count for site in user_sites),
+            },
+            "sites_data": [
+                {
+                    "site_name": site.site_name,
+                    "active": site.active_sites,
+                    "creation_date":site.created_at,
+                    "country":site.location,
+                    "total_users": {
+                        "count": site.total_users_count,
+                        "users": site.total_users,
+                    },
+                    "active_users": {
+                        "count": site.active_users_count,
+                        "users": site.active_users,
+                    },
+                    "active_modules": {
+                        "count": site.active_modules_count,
+                        "modules": site.active_modules,
+                    },
+                }
+                for site in user_sites
+            ],
+        }
+
+    # If no data exists, fetch it using `fetch_user_data`
+    return await fetch_user_data(id=id, db=db)
 
 
 

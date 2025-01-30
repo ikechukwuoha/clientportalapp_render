@@ -23,6 +23,8 @@ class UserTransactions(Base):
     quantity = Column(Integer, nullable=False)
     amount = Column(Float, nullable=False)
     training_and_setup = Column(Boolean, nullable=False)
+    valid_from = Column(DateTime, nullable=False)
+    valid_upto = Column(DateTime, nullable=False)
     payment_reference = Column(String, nullable=False)
     transaction_id = Column(BigInteger, nullable=False)
     message = Column(String, nullable=False)

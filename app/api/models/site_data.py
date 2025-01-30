@@ -67,6 +67,8 @@ class SiteData(Base):
     active_modules = Column(JSON)
     sites_data = Column(JSON)
 
+    location = Column(String, nullable=True)
+    
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 

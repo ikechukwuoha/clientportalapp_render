@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from app.api.database.db import get_db
@@ -7,6 +8,10 @@ from app.api.services.transaction_services import store_transaction
 from app.api.security.payment_verification import verify_paystack_transaction, verify_webhook_signature
 from app.api.models.transactions import UserTransactions
 import logging
+
+
+from app.api.services.transaction_services import get_transactions_by_user_id
+
 
 
 import os
@@ -128,7 +133,28 @@ async def paystack_webhook(request: Request, db: AsyncSession = Depends(get_db))
 
 
 
-
+@router.get("/get-transactions", response_model=List[dict])  # Response model can be customized
+async def fetch_user_transactions(id: str, db: AsyncSession = Depends(get_db)):
+    """
+    Fetch all transactions for a specific user based on user_id (id as query param).
+    """
+    transactions = await get_transactions_by_user_id(id, db)
+    return [
+        {
+            "id": transaction.id,
+            "user_id": str(transaction.user_id),
+            "plan": transaction.plan,
+            "payment_status": transaction.payment_status,
+            "amount": transaction.amount,
+            "payment_reference": transaction.payment_reference,
+            "transaction_id": transaction.transaction_id,
+            "valid_from": transaction.valid_from,
+            "valid_upto": transaction.valid_upto,
+            "paystack_status": transaction.paystack_status,
+            "created_at": transaction.created_at,
+        }
+        for transaction in transactions
+    ]
 
 
 
