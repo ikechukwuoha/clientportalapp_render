@@ -71,7 +71,7 @@ async def get_product(name: str, db: AsyncSession = Depends(get_db)):
     """
     Fetch product details by name from the external API, save to database, and return formatted data.
     """
-    product = await fetch_and_save_product(name, db)
+    product = await fetch_products_from_db(name, db)
     return product
 
 

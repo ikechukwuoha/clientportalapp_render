@@ -41,7 +41,7 @@ class TransactionPayload(BaseModel):
     valid_upto: str
     training_and_setup: bool
     payment_reference: str
-    transaction_id: str
+    transaction_id: int
     message: Optional[str] = "Payment successful"
     payment_status: str
 

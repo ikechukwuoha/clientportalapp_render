@@ -28,6 +28,9 @@ class CustomJSONEncoder(json.JSONEncoder):
         if isinstance(obj, uuid.UUID):
             return str(obj)
         return super().default(obj)
+    
+    
+    
 
 async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(get_db)):
     """
@@ -39,6 +42,7 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
         for k, v in transaction_data.items()
     }
     logging.info(f"Received transaction data: {json.dumps(safe_data, cls=CustomJSONEncoder)}")
+    print("This is the Transaxtion Data ......................................................................................................................................", transaction_data)
     
     try:
         # Extract all fields from transaction data with type validation
@@ -107,6 +111,8 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
                 status_code=404,
                 detail="User not found"
             )
+        
+        print(",3,3,,3,3,3,3,3,3m33m3m3m3m3m3m3m3m3m3m3m333333333333333333333333333333m3m3m3m3m3m3m3", payment_reference)
 
         # Verify payment with Paystack
         paystack_status, paystack_response = await verify_paystack_transaction(payment_reference)
@@ -184,6 +190,32 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
     except Exception as e:
         logging.error(f"Unhandled error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error storing transaction: {str(e)}")
+
+
+
+
+
+
+
+async def get_transactions_by_user_id(user_id: str, db: AsyncSession):
+    try:
+        # Fetch all transactions for the given user_id
+        result = await db.execute(select(UserTransactions).filter(UserTransactions.user_id == user_id))
+        transactions = result.scalars().all()
+        
+        if not transactions:
+            raise HTTPException(status_code=404, detail="No transactions found for this user")
+
+        return transactions
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching transactions: {str(e)}")
+
+
+
+
+
 
 
 
@@ -385,27 +417,4 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
 #     except Exception as e:
 #         logging.error(f"Unhandled error: {str(e)}")
 #         raise HTTPException(status_code=500, detail="Error storing transaction")
-
-
-
-
-
-
-
-
-
-async def get_transactions_by_user_id(user_id: str, db: AsyncSession):
-    try:
-        # Fetch all transactions for the given user_id
-        result = await db.execute(select(UserTransactions).filter(UserTransactions.user_id == user_id))
-        transactions = result.scalars().all()
-        
-        if not transactions:
-            raise HTTPException(status_code=404, detail="No transactions found for this user")
-
-        return transactions
-    except NoResultFound:
-        raise HTTPException(status_code=404, detail="User not found")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching transactions: {str(e)}")
 

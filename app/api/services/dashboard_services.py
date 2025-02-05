@@ -378,7 +378,287 @@ async def fetch_user_data(email: str, db: AsyncSession):
             "sites_data": sites_data,
         }
 
+
+async def fetch_user_data_count(email: str):
+    # Step 1: Fetch active sites
+    active_sites_response = await fetch_active_sites(email=email)
+
+    if active_sites_response["count"] == 0:
+        logging.warning("No sites found for the given email.")
+        return {
+            "active_sites": {"count": 0, "sites": []},
+            "total_users": {"count": 0, "users": []},
+            "active_users": {"count": 0, "users": []},
+            "active_modules": {"count": 0, "modules": []},
+        }
+
+    # Extract all sites dynamically
+    sites = active_sites_response["sites"].get("sites", {}).get("message", [])
+    if not sites:
+        logging.warning("No sites found in the `message` key.")
+        return {
+            "active_sites": {"count": 0, "sites": []},
+            "total_users": {"count": 0, "users": []},
+            "active_users": {"count": 0, "users": []},
+            "active_modules": {"count": 0, "modules": []},
+        }
+
+    # Initialize global counters and result aggregators
+    total_users_count = 0
+    total_users_list = []
+    active_users_count = 0
+    active_users_list = []
+    active_modules_count = 0
+    active_modules_list = []
+
+    headers = {
+        # "Authorization": f"token {API_KEY}:{API_SECRET}"
+    }
+
+    # Step 2: Loop through all sites and fetch data
+    async with httpx.AsyncClient() as client:
+        for site in sites:
+            site_name = site.get("site_name")
+            if not site_name:
+                continue
+
+            # Define dynamic URLs
+            urls = {
+                "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
+                "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
+                "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules"
+            }
+
+            try:
+                # Fetch data from each site
+                total_users_response = await client.get(urls["total_users"])
+                total_users_response.raise_for_status()
+
+                active_users_response = await client.get(urls["active_users"])
+                active_users_response.raise_for_status()
+
+                active_modules_response = await client.get(urls["active_modules"])
+                active_modules_response.raise_for_status()
+
+                # Parse responses
+                total_users_data = total_users_response.json().get("message", {})
+                active_users_data = active_users_response.json().get("message", {})
+                active_modules_data = active_modules_response.json().get("message", {})
+
+                # Aggregate global data
+                total_users_count += total_users_data.get("count", 0)
+                total_users_list.extend(total_users_data.get("users", []))
+
+                active_users_count += active_users_data.get("count", 0)
+                active_users_list.extend(active_users_data.get("users", []))
+
+                active_modules_count += active_modules_data.get("count", 0)
+                active_modules_list.extend(active_modules_data.get("modules", []))
+
+                # Add site-specific data
+                site["total_users"] = {
+                    "count": total_users_data.get("count", 0),
+                    f"total_users_for_{site_name}": total_users_data.get("users", [])
+                }
+                site["active_users"] = {
+                    "count": active_users_data.get("count", 0),
+                    f"active_users_for_{site_name}": active_users_data.get("users", [])
+                }
+                site["active_modules"] = {
+                    "count": active_modules_data.get("count", 0),
+                    f"active_modules_for_{site_name}": active_modules_data.get("modules", [])
+                }
+
+            except httpx.RequestError as e:
+                logging.error(f"Request error on site {site_name}: {e}")
+            except httpx.HTTPStatusError as e:
+                logging.error(f"HTTP error on site {site_name}: {e.response.status_code} - {e.response.text}")
+
+    # Step 3: Return consolidated data
+    return {
+        "active_sites": {
+            "count": len(sites),
+            "sites": sites
+        },
+        "total_users": {
+            "count": total_users_count,
+            "users": total_users_list
+        },
+        "active_users": {
+            "count": active_users_count,
+            "users": active_users_list
+        },
+        "active_modules": {
+            "count": active_modules_count,
+            "modules": active_modules_list
+        },
+    }
+
+
+async def get_site_data(id: str, db: AsyncSession):
+    """
+    Fetch and update site data with real-time checks.
     
+    Prioritizes database lookup, then performs real-time checks for updates.
+    """
+    # First, attempt to retrieve existing site data from database
+    result = await db.execute(select(SiteData).where(SiteData.user_id == id))
+    user_sites = result.scalars().all()
+
+    # If sites exist in database, check for real-time updates
+    if user_sites:
+        async with httpx.AsyncClient() as client:
+            updated_sites_data = []
+            total_users_count = 0
+            active_users_count = 0
+            active_modules_count = 0
+            active_sites_count = 0
+
+            for site in user_sites:
+                try:
+                    # Real-time API calls to check for updates
+                    urls = {
+                        "total_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_users",
+                        "active_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_active_users",
+                        "active_modules": f"http://{site.site_name}/api/method/clientportalapp_admin.modules.get_modules",
+                    }
+
+                    # Parallel API calls for efficiency
+                    total_users_response = await client.get(urls["total_users"])
+                    active_users_response = await client.get(urls["active_users"])
+                    active_modules_response = await client.get(urls["active_modules"])
+
+                    total_users_data = total_users_response.json().get("message", {})
+                    active_users_data = active_users_response.json().get("message", {})
+                    active_modules_data = active_modules_response.json().get("message", {})
+
+                    # Extract current counts
+                    site_total_users = total_users_data.get("count", 0)
+                    site_active_users = active_users_data.get("count", 0)
+                    site_active_modules = active_modules_data.get("count", 0)
+
+                    # Update database record
+                    site.total_users_count = site_total_users
+                    site.active_users_count = site_active_users
+                    site.active_modules_count = site_active_modules
+                    site.total_users = total_users_data.get("users", [])
+                    site.active_users = active_users_data.get("users", [])
+                    site.active_modules = active_modules_data.get("modules", [])
+
+                    # Aggregate totals
+                    total_users_count += site_total_users
+                    active_users_count += site_active_users
+                    active_modules_count += site_active_modules
+                    active_sites_count += 1 if site.active_sites else 0
+
+                    # Prepare site data for response
+                    updated_sites_data.append({
+                        "site_name": site.site_name,
+                        "active": site.active_sites,
+                        "creation_date": site.created_at,
+                        "country": site.location,
+                        "total_users": {
+                            "count": site_total_users,
+                            "users": total_users_data.get("users", []),
+                        },
+                        "active_users": {
+                            "count": site_active_users,
+                            "users": active_users_data.get("users", []),
+                        },
+                        "active_modules": {
+                            "count": site_active_modules,
+                            "modules": active_modules_data.get("modules", []),
+                        },
+                    })
+
+                except (httpx.RequestError, httpx.HTTPStatusError) as e:
+                    logging.error(f"Update error for site {site.site_name}: {e}")
+                    # Use existing data if update fails
+                    updated_sites_data.append({
+                        "site_name": site.site_name,
+                        "active": site.active_sites,
+                        "creation_date": site.created_at,
+                        "country": site.location,
+                        "total_users": {
+                            "count": site.total_users_count,
+                            "users": site.total_users,
+                        },
+                        "active_users": {
+                            "count": site.active_users_count,
+                            "users": site.active_users,
+                        },
+                        "active_modules": {
+                            "count": site.active_modules_count,
+                            "modules": site.active_modules,
+                        },
+                    })
+
+            # Commit updates to database
+            await db.commit()
+
+            return {
+                "totals": {
+                    "total_sites": len(user_sites),
+                    "active_sites": active_sites_count,
+                    "total_users": total_users_count,
+                    "active_users": active_users_count,
+                    "total_active_modules": active_modules_count,
+                },
+                "sites_data": updated_sites_data,
+            }
+
+    # Fallback to original fetch_user_data if no existing sites
+    return await fetch_user_data(id=id, db=db)
+
+
+
+
+# async def get_site_data(id: str, db: AsyncSession):
+#     """
+#     Fetch site data from the database for the given user ID.
+#     """
+#     # Query the database for site data matching the user's ID
+#     result = await db.execute(select(SiteData).where(SiteData.user_id == id))
+#     user_sites = result.scalars().all()
+
+#     # If data exists, process and return it
+#     if user_sites:
+#         return {
+#             "totals": {
+#                 "total_sites": len(user_sites),
+#                 "active_sites": sum(1 for site in user_sites if site.active_sites),
+#                 "total_users": sum(site.total_users_count for site in user_sites),
+#                 "active_users": sum(site.active_users_count for site in user_sites),
+#                 "total_active_modules": sum(site.active_modules_count for site in user_sites),
+#             },
+#             "sites_data": [
+#                 {
+#                     "site_name": site.site_name,
+#                     "active": site.active_sites,
+#                     "creation_date":site.created_at,
+#                     "country":site.location,
+#                     "total_users": {
+#                         "count": site.total_users_count,
+#                         "users": site.total_users,
+#                     },
+#                     "active_users": {
+#                         "count": site.active_users_count,
+#                         "users": site.active_users,
+#                     },
+#                     "active_modules": {
+#                         "count": site.active_modules_count,
+#                         "modules": site.active_modules,
+#                     },
+#                 }
+#                 for site in user_sites
+#             ],
+#         }
+
+#     # If no data exists, fetch it using `fetch_user_data`
+#     return await fetch_user_data(id=id, db=db)
+
+
+
 
 
 # async def fetch_user_data(email: str, db: AsyncSession):
@@ -555,181 +835,6 @@ async def fetch_user_data(email: str, db: AsyncSession):
 #         },
 #         "sites_data": sites_data,
 #     }
-
-
-
-
-
-
-
-
-async def fetch_user_data_count(email: str):
-    # Step 1: Fetch active sites
-    active_sites_response = await fetch_active_sites(email=email)
-
-    if active_sites_response["count"] == 0:
-        logging.warning("No sites found for the given email.")
-        return {
-            "active_sites": {"count": 0, "sites": []},
-            "total_users": {"count": 0, "users": []},
-            "active_users": {"count": 0, "users": []},
-            "active_modules": {"count": 0, "modules": []},
-        }
-
-    # Extract all sites dynamically
-    sites = active_sites_response["sites"].get("sites", {}).get("message", [])
-    if not sites:
-        logging.warning("No sites found in the `message` key.")
-        return {
-            "active_sites": {"count": 0, "sites": []},
-            "total_users": {"count": 0, "users": []},
-            "active_users": {"count": 0, "users": []},
-            "active_modules": {"count": 0, "modules": []},
-        }
-
-    # Initialize global counters and result aggregators
-    total_users_count = 0
-    total_users_list = []
-    active_users_count = 0
-    active_users_list = []
-    active_modules_count = 0
-    active_modules_list = []
-
-    headers = {
-        # "Authorization": f"token {API_KEY}:{API_SECRET}"
-    }
-
-    # Step 2: Loop through all sites and fetch data
-    async with httpx.AsyncClient() as client:
-        for site in sites:
-            site_name = site.get("site_name")
-            if not site_name:
-                continue
-
-            # Define dynamic URLs
-            urls = {
-                "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-                "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-                "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules"
-            }
-
-            try:
-                # Fetch data from each site
-                total_users_response = await client.get(urls["total_users"])
-                total_users_response.raise_for_status()
-
-                active_users_response = await client.get(urls["active_users"])
-                active_users_response.raise_for_status()
-
-                active_modules_response = await client.get(urls["active_modules"])
-                active_modules_response.raise_for_status()
-
-                # Parse responses
-                total_users_data = total_users_response.json().get("message", {})
-                active_users_data = active_users_response.json().get("message", {})
-                active_modules_data = active_modules_response.json().get("message", {})
-
-                # Aggregate global data
-                total_users_count += total_users_data.get("count", 0)
-                total_users_list.extend(total_users_data.get("users", []))
-
-                active_users_count += active_users_data.get("count", 0)
-                active_users_list.extend(active_users_data.get("users", []))
-
-                active_modules_count += active_modules_data.get("count", 0)
-                active_modules_list.extend(active_modules_data.get("modules", []))
-
-                # Add site-specific data
-                site["total_users"] = {
-                    "count": total_users_data.get("count", 0),
-                    f"total_users_for_{site_name}": total_users_data.get("users", [])
-                }
-                site["active_users"] = {
-                    "count": active_users_data.get("count", 0),
-                    f"active_users_for_{site_name}": active_users_data.get("users", [])
-                }
-                site["active_modules"] = {
-                    "count": active_modules_data.get("count", 0),
-                    f"active_modules_for_{site_name}": active_modules_data.get("modules", [])
-                }
-
-            except httpx.RequestError as e:
-                logging.error(f"Request error on site {site_name}: {e}")
-            except httpx.HTTPStatusError as e:
-                logging.error(f"HTTP error on site {site_name}: {e.response.status_code} - {e.response.text}")
-
-    # Step 3: Return consolidated data
-    return {
-        "active_sites": {
-            "count": len(sites),
-            "sites": sites
-        },
-        "total_users": {
-            "count": total_users_count,
-            "users": total_users_list
-        },
-        "active_users": {
-            "count": active_users_count,
-            "users": active_users_list
-        },
-        "active_modules": {
-            "count": active_modules_count,
-            "modules": active_modules_list
-        },
-    }
-
-
-
-
-
-
-async def get_site_data(id: str, db: AsyncSession):
-    """
-    Fetch site data from the database for the given user ID.
-    """
-    # Query the database for site data matching the user's ID
-    result = await db.execute(select(SiteData).where(SiteData.user_id == id))
-    user_sites = result.scalars().all()
-
-    # If data exists, process and return it
-    if user_sites:
-        return {
-            "totals": {
-                "total_sites": len(user_sites),
-                "active_sites": sum(1 for site in user_sites if site.active_sites),
-                "total_users": sum(site.total_users_count for site in user_sites),
-                "active_users": sum(site.active_users_count for site in user_sites),
-                "total_active_modules": sum(site.active_modules_count for site in user_sites),
-            },
-            "sites_data": [
-                {
-                    "site_name": site.site_name,
-                    "active": site.active_sites,
-                    "creation_date":site.created_at,
-                    "country":site.location,
-                    "total_users": {
-                        "count": site.total_users_count,
-                        "users": site.total_users,
-                    },
-                    "active_users": {
-                        "count": site.active_users_count,
-                        "users": site.active_users,
-                    },
-                    "active_modules": {
-                        "count": site.active_modules_count,
-                        "modules": site.active_modules,
-                    },
-                }
-                for site in user_sites
-            ],
-        }
-
-    # If no data exists, fetch it using `fetch_user_data`
-    return await fetch_user_data(id=id, db=db)
-
-
-
-
 
 
 
