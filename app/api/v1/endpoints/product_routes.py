@@ -1,3 +1,4 @@
+from uuid import UUID
 import json
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,8 +8,7 @@ from app.api.models.product import Product
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import FastAPI, APIRouter, Request
 from app.api.schemas.product_schema import ItemUpdateRequest
-from app.api.services.product_services import fetch_and_save_product, fetch_products_from_db
-
+from app.api.services.product_services import fetch_and_save_product, fetch_products_from_db, fetch_single_product_from_db
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from app.api.services.product_services import update_item_in_frappe
@@ -18,27 +18,10 @@ import logging
 import traceback
 
 
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-
-
-# @router.get("/get-products", tags=["product"])
-# async def get_all_products(db: AsyncSession = Depends(get_db)):
-#     """
-#     Fetch and save the product, then return it.
-#     """
-#     try:
-#         # Call the service to fetch and save the product
-#         print("THEM DON HIT ME")
-#         product = await fetch_products_from_db(db)
-#         return product
-#     except HTTPException as e:
-#         raise e
-#     except Exception as e:
-#         logging.error(f"Unexpected error in get_all_products: {str(e)}")
-#         raise HTTPException(status_code=500, detail="Error fetching product data")
 
 
 @router.get("/get-products", tags=["product"])
@@ -65,14 +48,32 @@ async def get_all_products(db: AsyncSession = Depends(get_db)):
 
 
     
-# routes/products.py
-@router.get("/get-product/{name}", tags=["product"])
-async def get_product(name: str, db: AsyncSession = Depends(get_db)):
+
+
+@router.get("/products/{product_id}", tags=["product"])
+async def get_product_by_id(product_id: UUID, db: AsyncSession = Depends(get_db)):
     """
-    Fetch product details by name from the external API, save to database, and return formatted data.
+    Fetch a specific product by its ID from the database and update it with latest API data if available.
+    
+    Parameters:
+        product_id (UUID): The UUID of the product to fetch
+        db (AsyncSession): Database session dependency
     """
-    product = await fetch_products_from_db(name, db)
-    return product
+    try:
+        return await fetch_single_product_from_db(product_id, db)
+    except HTTPException as e:
+        raise e
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid UUID format: {product_id}"
+        )
+    except Exception as e:
+        logging.error(f"Unexpected error in get_product_by_id: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error fetching product data"
+        )
 
 
 

@@ -226,50 +226,89 @@ async def fetch_products_from_db(db: AsyncSession) -> dict:
     }
 
 
+async def fetch_single_product_from_db(product_id: uuid.UUID, db: AsyncSession) -> dict:
+    """
+    Fetch a single product from database and update it with latest API data if available.
+    """
+    try:
+        # First, fetch the specific product from database
+        query = select(Product).where(Product.id == product_id)
+        result = await db.execute(query)
+        product = result.scalar_one_or_none()
 
-# async def fetch_products_from_db(db: AsyncSession) -> dict:
-#     query = select(Product)
-#     result = await db.execute(query)
-#     products = result.scalars().all()
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Product with ID {product_id} not found"
+            )
 
-#     if not products:
-#         return {"message": "No products available", "products": []}
+        # Create base response with existing plans
+        response_product = {
+            "id": str(product.id),
+            "product_code": product.product_code,
+            "product_title": product.product_title,
+            "item_group": getattr(product, 'item_group', None),
+            "product_description": product.product_description,
+            "product_image": product.product_image,
+            "images": getattr(product, 'images', []),
+            "benefits": getattr(product, 'benefits', []),
+            "plans": product.plans if product.plans else {}
+        }
 
-#     response_products = []
+        # Attempt to fetch latest data from API
+        url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                response.raise_for_status()
+                api_product_data = response.json().get("message", {}).get("items", [])
 
-#     for product in products:
-#         prices = product.prices or {}
-#         print(f"Debug: Prices for product {product.id} -> {prices}")
+                # Find matching product in API data
+                matching_api_product = next(
+                    (item for item in api_product_data if item.get("name") == product.product_code),
+                    None
+                )
 
-#         # Dynamically construct plans
-#         plans = {}
-#         for plan_name in ["Standard", "Custom", "Free"]:
-#             plan_details = prices.get(plan_name, {})
-#             plan_pricing = plan_details.get("price_range", [])
-#             plan_descriptions = plan_details.get("plan_descriptions", [])
-#             training_and_setup = plan_details.get("training_and_setup", [])
+                if matching_api_product:
+                    # Update product in database with new data
+                    product.product_title = matching_api_product.get("item_name", product.product_title)
+                    product.item_group = matching_api_product.get("item_group", getattr(product, 'item_group', None))
+                    product.product_description = matching_api_product.get("description", product.product_description)
+                    product.product_image = matching_api_product.get("images", [product.product_image])[0]
+                    product.images = matching_api_product.get("images", getattr(product, 'images', []))
+                    product.benefits = matching_api_product.get("benefits", getattr(product, 'benefits', []))
+                    product.plans = matching_api_product.get("grouped_data", product.plans)
+                    
+                    await db.commit()
 
-#             plans[plan_name] = {
-#                 "description": plan_descriptions,  # Include descriptions
-#                 "pricing": plan_pricing,           # Map price ranges
-#                 "training_and_setup": training_and_setup,  # Include training setup details
-#             }
+                    # Update response with new data
+                    response_product.update({
+                        "product_title": product.product_title,
+                        "item_group": product.item_group,
+                        "product_description": product.product_description,
+                        "product_image": product.product_image,
+                        "images": product.images,
+                        "benefits": product.benefits,
+                        "plans": product.plans
+                    })
 
-#         response_products.append({
-#             "id": str(product.id),
-#             "product_code": product.product_code,
-#             "product_title": product.product_title,
-#             "item_group": product.item_group,
-#             "product_description": product.product_description,
-#             "product_image": product.product_image,
-#             "images": product.images,
-#             "benefits": product.benefits,
-#             "plans": plans,
-#         })
+        except Exception as e:
+            logging.warning(f"API fetch failed, using existing database product: {str(e)}")
 
-#     return {"message": "Fetched products from database", "products": response_products}
+        return {
+            "message": "Product found",
+            "product": response_product
+        }
 
-
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error in fetch_single_product_from_db: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error fetching product data"
+        )
 
 
 

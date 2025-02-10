@@ -31,6 +31,11 @@ class UserTransactions(Base):
     paystack_status = Column(String)
     paystack_response = Column(JSON)
     
+    
+    site_creation_status = Column(String)
+    site_creation_job_id = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
+    site_creation_error = Column(String)
+    
 
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)

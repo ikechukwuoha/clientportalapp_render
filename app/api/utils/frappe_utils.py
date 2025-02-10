@@ -58,50 +58,36 @@ async def store_site_data(site_data):
     
 
 
-async def create_frappe_site(site_data: dict):
+async def create_frappe_site(site_name: str):
+    """
+    Create a new Frappe site using the existing site creation endpoint.
+    Ensures the site name has the correct domain suffix.
+    """
+    # Format site name if needed
+    if not site_name.endswith('.purpledove.net'):
+        site_name = f"{site_name}.purpledove.net"
+    
+    site_data = {
+        "site_name": site_name,
+    }
+    
     headers = {
         "Content-Type": "application/json"
     }
 
     try:
-        logging.info(f"Starting Frappe site creation with data: {site_data}")
-
-        async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
-            response = await client.post(FRAPPE_URL12, json=site_data, headers=headers)
-            logging.debug(f"Response Status Code: {response.status_code}")
-            logging.debug(f"Response Body: {response.text}")
-
-            response.raise_for_status()  # Raise an exception for HTTP errors
-            data = response.json()
-            logging.debug(f"Response JSON: {data}")
-
-            if data.get("status") == "error":
-                logging.error(f"Frappe API returned an error: {data.get('message')}")
-                raise HTTPException(status_code=400, detail=data.get("message"))
-
-            logging.info("Frappe site created successfully.")
-
-            # Now, add logging for the next steps, especially after this point
-            logging.info(f"Site creation completed, now proceeding with next steps.")
-            
-            # Add other actions here after Frappe site creation
-            return data
-
-    except httpx.RequestError as e:
-        logging.error(f"Request error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Error connecting to the Frappe API."
-        )
-    except httpx.HTTPStatusError as e:
-        logging.error(f"HTTP error: {e.response.status_code} - {e.response.text}")
-        raise HTTPException(
-            status_code=500,
-            detail="Frappe API returned an error."
-        )
+        logging.info(f"Initiating Frappe site creation for: {site_name}")
+        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
+            response = await client.post(
+                f"{FRAPPE_URL}/api/method/clientportalapp_admin.site_manager_app.create_new_site",
+                json=site_data,
+                headers=headers
+            )
+            response.raise_for_status()
+            return response.json()
     except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
+        logging.error(f"Error creating Frappe site: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="An unexpected error occurred during site creation."
+            detail=f"Failed to create Frappe site: {str(e)}"
         )

@@ -1,9 +1,12 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel, field_validator, Field, EmailStr
+from pydantic import BaseModel, Field
+from passlib.context import CryptContext
+from pydantic import BaseModel, field_validator, Field, EmailStr, UUID4, field_validator
 import re
-from pydantic import BaseModel, EmailStr, constr, Field,field_serializer
+import uuid
+from pydantic import BaseModel, EmailStr, constr, Field,field_serializer, HttpUrl
 
 class UserCreate(BaseModel):
     first_name: str  # Type hint using constr directly
@@ -124,3 +127,58 @@ class ResetPassword(BaseModel):
         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
             raise ValueError('Password must contain at least one special character')
         return value
+    
+
+class UserUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    country: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role_id: Optional[UUID4] = None 
+    is_active: Optional[bool] = None
+
+    @field_validator('*', mode='before')
+    def convert_empty_to_none(cls, value):
+        if value == "":
+            return None
+        return value
+
+    @field_validator("email", mode="before")
+    def validate_email(cls, value):
+        if value == "":
+            return None
+        return value
+
+    @field_validator("role_id", mode="before")
+    def validate_role_id(cls, value):
+        if value == "":
+            return None
+        return value
+
+    class Config:
+        from_attributes = True  # Updated from orm_mode which is deprecated
+        arbitrary_types_allowed = True
+
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+class ChangePassword(BaseModel):
+    old_password: str = Field(..., min_length=6, max_length=50)
+    new_password: str = Field(..., min_length=6, max_length=50)
+    confirm_password: str = Field(..., min_length=6, max_length=50)
+
+    @staticmethod
+    def hash_password(password: str) -> str:
+        """Hash the password using bcrypt."""
+        return pwd_context.hash(password)
+
+    @staticmethod
+    def verify_password(plain_password: str, hashed_password: str) -> bool:
+        """Verify the password against the stored hash."""
+        return pwd_context.verify(plain_password, hashed_password)
+
+    @staticmethod
+    def validate_new_password(new_password: str, confirm_password: str):
+        """Ensure new password and confirm password match."""
+        if new_password != confirm_password:
+            raise ValueError("New password and confirmation do not match.")

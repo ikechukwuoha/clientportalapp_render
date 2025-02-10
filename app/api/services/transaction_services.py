@@ -4,6 +4,7 @@ import logging
 from sqlalchemy import select
 from app.api.database.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.api.models.site_data import SiteData
 from app.api.models.transactions import UserTransactions
 from fastapi import APIRouter, HTTPException, Depends
 from app.api.models.user_model import User
@@ -122,6 +123,13 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
                 detail="Invalid Paystack transaction status. Please verify your payment reference."
             )
 
+        # If payment failed, don't proceed with site creation
+        if paystack_status == "failed":
+            raise HTTPException(
+                status_code=400,
+                detail="Payment verification failed"
+            )
+
         # Create transaction record
         users_transactions = UserTransactions(
             user_id=user_id,
@@ -151,27 +159,52 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
         db.add(users_transactions)
         await db.commit()
         await db.refresh(users_transactions)
+        
+        site_creation_response = None
+        frappe_response = None
+        
+        if paystack_status == "success":
+            try:
+                # Create Frappe site
+                site_creation_response = await create_frappe_site(site_name=site_name)
+                
+                # Update transaction with site creation status
+                users_transactions.site_creation_status = "initiated"
+                users_transactions.site_creation_job_id = site_creation_response.get("job_id")
+                
+                # Store additional site data in Frappe
+                frappe_data = {
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "email": email,
+                    "phone": phone,
+                    "country": country,
+                    "company_name": company_name,
+                    "organization": organization,
+                    "site_name": site_name,
+                    "valid_from": valid_from.strftime("%Y-%m-%d"),
+                    "valid_upto": valid_upto.strftime("%Y-%m-%d"),
+                    "status": payment_status,
+                    "product": plan
+                }
+                
+                frappe_response = await store_site_data(frappe_data)
+                
+                # Update final status
+                users_transactions.site_creation_status = "success"
+                await db.commit()
+                
+                logging.info(f"Site creation initiated successfully for {site_name}")
+                
+            except Exception as e:
+                error_msg = f"Error in site creation process: {str(e)}"
+                logging.error(error_msg)
+                users_transactions.site_creation_status = "failed"
+                users_transactions.site_creation_error = error_msg
+                await db.commit()
+                # We don't raise an exception here as the payment was successful
 
-        # Prepare Frappe data with proper date formatting
-        frappe_data = {
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "phone": phone,
-            "country": country,
-            "company_name": company_name,
-            "organization": organization,
-            "site_name": site_name,
-            "valid_from": valid_from.strftime("%Y-%m-%d"),
-            "valid_upto": valid_upto.strftime("%Y-%m-%d"),
-            "status": payment_status,
-            "product": "Hello World!!"
-        }
-
-        # Update Frappe site data
-        frappe_response = await store_site_data(frappe_data)
-
-        # Return success response with serializable data
+        # Return success response with all relevant data
         return {
             "message": "Transaction stored successfully",
             "transaction": {
@@ -179,9 +212,13 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
                 "user_id": str(users_transactions.user_id),
                 "plan": users_transactions.plan,
                 "payment_status": users_transactions.payment_status,
-                "paystack_response": json.loads(users_transactions.paystack_response),
+                "paystack_status": paystack_status,
+                "site_name": users_transactions.site_name,
+                "site_creation_status": users_transactions.site_creation_status,
+                "site_creation_job_id": getattr(users_transactions, 'site_creation_job_id', None)
             },
-            "frappe_update_response": frappe_response
+            "site_creation": site_creation_response if site_creation_response else None,
+            "frappe_update": frappe_response if frappe_response else None
         }
 
     except HTTPException as e:
@@ -195,22 +232,76 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
 
 
 
-
-
 async def get_transactions_by_user_id(user_id: str, db: AsyncSession):
     try:
-        # Fetch all transactions for the given user_id
-        result = await db.execute(select(UserTransactions).filter(UserTransactions.user_id == user_id))
-        transactions = result.scalars().all()
+        # Fetch transactions with corresponding site data in one query
+        query = (
+            select(UserTransactions, SiteData.active_sites)
+            .join(SiteData, UserTransactions.site_name == SiteData.site_name, isouter=True)
+            .filter(UserTransactions.user_id == user_id)
+        )
+        result = await db.execute(query)
+        transactions_with_sites = result.all()
         
-        if not transactions:
+        if not transactions_with_sites:
             raise HTTPException(status_code=404, detail="No transactions found for this user")
 
-        return transactions
+        return transactions_with_sites
     except NoResultFound:
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching transactions: {str(e)}")
+
+
+
+
+
+async def get_transaction_by_id(transaction_id: str, db: AsyncSession) -> tuple:
+    """
+    Fetch a single transaction with corresponding site data by transaction_id.
+    """
+    try:
+        query = (
+            select(UserTransactions, SiteData.active_sites)
+            .join(SiteData, UserTransactions.site_name == SiteData.site_name, isouter=True)
+            .filter(UserTransactions.id == transaction_id)
+        )
+        result = await db.execute(query)
+        transaction_with_site = result.first()
+        
+        if not transaction_with_site:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Transaction with ID {transaction_id} not found"
+            )
+
+        return transaction_with_site
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Transaction with ID {transaction_id} not found"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching transaction: {str(e)}"
+        )
+
+
+# async def get_transactions_by_user_id(user_id: str, db: AsyncSession):
+#     try:
+#         # Fetch all transactions for the given user_id
+#         result = await db.execute(select(UserTransactions).filter(UserTransactions.user_id == user_id))
+#         transactions = result.scalars().all()
+        
+#         if not transactions:
+#             raise HTTPException(status_code=404, detail="No transactions found for this user")
+
+#         return transactions
+#     except NoResultFound:
+#         raise HTTPException(status_code=404, detail="User not found")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error fetching transactions: {str(e)}")
 
 
 

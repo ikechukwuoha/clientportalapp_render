@@ -29,6 +29,7 @@ from app.api.services.role_permission_services import (
     add_permissions_to_role,
     remove_permissions_from_role
 )
+from sqlalchemy.future import select
 import uuid
 
 router = APIRouter()
@@ -179,6 +180,7 @@ async def get_all_permissions(db: AsyncSession = Depends(get_db)):
 # A Function to get all Roles
 @router.get("/all-roles", tags=["role_permission"])
 async def get_all_roles(db: AsyncSession = Depends(get_db)):
-    roles = db.query(Role).all()
-    
+    result = await db.execute(select(Role))  # Correct async query
+    roles = result.scalars().all()  # Extract roles
+
     return roles

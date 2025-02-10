@@ -1,10 +1,10 @@
-from typing import List
+from typing import Dict, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from app.api.database.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.schemas.transaction_schema import TransactionPayload
-from app.api.services.transaction_services import store_transaction
+from app.api.services.transaction_services import get_transaction_by_id, store_transaction
 from app.api.security.payment_verification import verify_paystack_transaction, verify_webhook_signature
 from app.api.models.transactions import UserTransactions
 import logging
@@ -35,7 +35,11 @@ async def store_transactions_payload(transaction_data: TransactionPayload,
     return await store_transaction(transaction_data.model_dump(), db) 
 
 
-
+@router.post("/webhook/site-creation")
+async def site_creation_webhook(data: dict):
+    # Handle the webhook data
+    print("4444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444", data)
+    return {"status": "received"}
 
 
 # PAYSTACK WEBHOOK
@@ -128,17 +132,14 @@ async def paystack_webhook(request: Request, db: AsyncSession = Depends(get_db))
 
 
 
-
-
-
-
-
-@router.get("/get-transactions", response_model=List[dict])  # Response model can be customized
-async def fetch_user_transactions(id: str, db: AsyncSession = Depends(get_db)):
+@router.get("/get-transactions/{user_id}", response_model=List[dict])
+async def fetch_user_transactions(user_id: str, db: AsyncSession = Depends(get_db)):
     """
-    Fetch all transactions for a specific user based on user_id (id as query param).
+    Fetch all transactions for a specific user based on user_id with active sites.
+    Path parameter:
+    - user_id: The ID of the user whose transactions to fetch
     """
-    transactions = await get_transactions_by_user_id(id, db)
+    transactions_with_sites = await get_transactions_by_user_id(user_id, db)
     return [
         {
             "id": transaction.id,
@@ -146,6 +147,9 @@ async def fetch_user_transactions(id: str, db: AsyncSession = Depends(get_db)):
             "plan": transaction.plan,
             "payment_status": transaction.payment_status,
             "amount": transaction.amount,
+            "site_name": transaction.site_name,
+            "active_sites": active_sites,
+            "number_of_users": transaction.quantity,
             "payment_reference": transaction.payment_reference,
             "transaction_id": transaction.transaction_id,
             "valid_from": transaction.valid_from,
@@ -153,8 +157,78 @@ async def fetch_user_transactions(id: str, db: AsyncSession = Depends(get_db)):
             "paystack_status": transaction.paystack_status,
             "created_at": transaction.created_at,
         }
-        for transaction in transactions
+        for transaction, active_sites in transactions_with_sites
     ]
+    
+    
+    
+    
+@router.get("/transactions/{transaction_id}", response_model=Dict)
+async def fetch_transaction(transaction_id: str, db: AsyncSession = Depends(get_db)):
+    """
+    Fetch a single transaction by its transaction_id with active sites.
+    
+    Parameters:
+        transaction_id: The unique identifier of the transaction
+        db: Database session
+    """
+    try:
+        transaction, active_sites = await get_transaction_by_id(transaction_id, db)
+        
+        return {
+            "message": "Transaction found",
+            "transaction": {
+                "user_id": str(transaction.user_id),
+                "plan": transaction.plan,
+                "payment_status": transaction.payment_status,
+                "amount": transaction.amount,
+                "site_name": transaction.site_name,
+                "active_sites": active_sites,
+                "number_of_users": transaction.quantity,
+                "payment_reference": transaction.payment_reference,
+                "transaction_id": transaction.transaction_id,
+                "valid_from": transaction.valid_from,
+                "valid_upto": transaction.valid_upto,
+                "paystack_status": transaction.paystack_status,
+                "created_at": transaction.created_at,
+            }
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logging.error(f"Unexpected error in fetch_transaction: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error fetching transaction data"
+        )
+
+
+
+# @router.get("/get-transactions", response_model=List[dict])  # Response model can be customized
+# async def fetch_user_transactions(id: str, db: AsyncSession = Depends(get_db)):
+#     """
+#     Fetch all transactions for a specific user based on user_id (id as query param).
+#     """
+#     transactions = await get_transactions_by_user_id(id, db)
+#     return [
+#         {
+#             "id": transaction.id,
+#             "user_id": str(transaction.user_id),
+#             "plan": transaction.plan,
+#             "payment_status": transaction.payment_status,
+#             "amount": transaction.amount,
+#             "site_name": transaction.site_name,
+#             "number_of_users": transaction.quantity,
+#             "amount": transaction.amount,
+#             "payment_reference": transaction.payment_reference,
+#             "transaction_id": transaction.transaction_id,
+#             "valid_from": transaction.valid_from,
+#             "valid_upto": transaction.valid_upto,
+#             "paystack_status": transaction.paystack_status,
+#             "created_at": transaction.created_at,
+#         }
+#         for transaction in transactions
+#     ]
 
 
 
