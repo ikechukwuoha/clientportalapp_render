@@ -1,9 +1,10 @@
+import traceback
 from uuid import UUID
 import json
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.database.db import get_db
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from app.api.models.product import Product
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import FastAPI, APIRouter, Request
@@ -13,9 +14,17 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from app.api.services.product_services import update_item_in_frappe
 import json
+from typing import Optional
+import os
 
 import logging
-import traceback
+import uuid
+from datetime import datetime
+
+
+
+
+import logging
 
 
 
@@ -155,16 +164,286 @@ def update_item(payload: ItemUpdateRequest):
 
 
 
+async def verify_api_key(x_api_key: Optional[str] = Header(None)):
+    """
+    Dependency to verify the incoming webhook API key.
+    This ensures only authorized sources can trigger our webhook.
+    """
+    expected_api_key = os.getenv("WEBHOOK_API_KEY")
+    if not x_api_key or x_api_key != expected_api_key:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing API key"
+        )
+    return x_api_key
 
 
 
 
 
+async def save_or_update_product(db: AsyncSession, product_data: dict) -> dict:
+    try:
+        # Log incoming data
+        logging.info(f"Incoming product_data: {json.dumps(product_data, indent=2)}")
+        
+        # Handle NULL product_image
+        product_image = product_data.get("image")
+        if product_image is None:
+            product_image = "https://example.com/default-product-image.jpg"  # Default image URL
+
+        formatted_product = {
+            "product_id": product_data.get("name"),
+            "product_name": product_data.get("item_name"),
+            "item_group": product_data.get("item_group", "Unknown"),
+            "product_description": product_data.get("description"),
+            "product_image": product_image,  # Use the default value if NULL
+            "images": product_data.get("images", []),
+            "benefits": product_data.get("benefits", []),
+            "plans": product_data.get("plans", {})
+        }
+        
+        # Log formatted data
+        logging.info(f"Formatted product data: {json.dumps(formatted_product, indent=2)}")
+
+        # Check if product exists
+        query = select(Product).where(Product.product_code == formatted_product["product_id"])
+        result = await db.execute(query)
+        existing_product = result.scalars().first()
+
+        if existing_product:
+            # Update existing product
+            existing_product.product_title = formatted_product["product_name"]
+            existing_product.item_group = formatted_product["item_group"]
+            existing_product.product_description = formatted_product["product_description"]
+            existing_product.product_image = formatted_product["product_image"]
+            existing_product.images = formatted_product["images"]
+            existing_product.benefits = formatted_product["benefits"]
+            existing_product.plans = formatted_product["plans"]
+            existing_product.updated_at = datetime.utcnow()
+            
+            product_response = existing_product
+            action = "updated"
+        else:
+            # Create new product
+            new_product = Product(
+                id=uuid.uuid4(),
+                product_code=formatted_product["product_id"],
+                product_title=formatted_product["product_name"],
+                item_group=formatted_product["item_group"],
+                product_description=formatted_product["product_description"],
+                product_image=formatted_product["product_image"],
+                images=formatted_product["images"],
+                benefits=formatted_product["benefits"],
+                plans=formatted_product["plans"]
+            )
+            db.add(new_product)
+            product_response = new_product
+            action = "created"
+
+        return {
+            "product_code": product_response.product_code,
+            "action": action,
+            "status": "success"
+        }
+
+    except Exception as e:
+        logging.error(f"Error processing product {formatted_product['product_id']}: {str(e)}")
+        logging.error(f"Full error traceback: {traceback.format_exc()}")
+        return {
+            "product_code": formatted_product["product_id"],
+            "action": "failed",
+            "status": "error",
+            "error": str(e)
+        }
+
+@router.post("/webhook/product-update")
+async def site_product_webhook(
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+    api_key: str = Depends(verify_api_key)
+):
+    """
+    Endpoint to receive product updates from Frappe and store them in the database.
+    """
+    logging.info("Received webhook data for product update")
+    logging.info(f"Full webhook data: {json.dumps(data, indent=2)}")
+    
+    results = []
+    
+    if "items" not in data:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid webhook data format - 'items' field is required"
+        )
+
+    try:
+        # Process each product in the webhook data
+        for item in data["items"]:  # Updated to handle the correct structure
+            result = await save_or_update_product(db, item)
+            results.append(result)
+
+        # Commit the transaction
+        await db.commit()
+
+        # Prepare the response
+        successful = [r for r in results if r["status"] == "success"]
+        failed = [r for r in results if r["status"] == "error"]
+
+        return {
+            "status": "success",
+            "message": f"Processed {len(results)} products",
+            "details": {
+                "successful": len(successful),
+                "failed": len(failed),
+                "results": results
+            }
+        }
+
+    except Exception as e:
+        await db.rollback()
+        logging.error(f"Error processing webhook: {str(e)}")
+        logging.error(f"Full error traceback: {traceback.format_exc()}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing webhook: {str(e)}"
+        )
 
 
 
 
+# async def save_or_update_product(db: AsyncSession, product_data: dict) -> dict:
+#     """
+#     Helper function to save or update a single product in the database.
+#     This handles both creation of new products and updates to existing ones.
+    
+#     Args:
+#         db: The database session
+#         product_data: Dictionary containing the product information
+    
+#     Returns:
+#         dict: Information about the saved/updated product
+#     """
+#     try:
+#         # Format the product data to match the incoming structure
+#         formatted_product = {
+#             "product_id": product_data.get("name"),
+#             "product_name": product_data.get("item_name"),
+#             "item_group": product_data.get("item_group", "Unknown"),
+#             "product_description": product_data.get("description"),  # Changed from looking for item_description
+#             "product_image": product_data.get("image"),  # Changed from images array to single image
+#             "images": product_data.get("images", []),
+#             "benefits": product_data.get("benefits", []),
+#             "plans": product_data.get("plans", {})  # This is correct as plans contains both description and pricing
+#         }
 
+#         # Check if product exists
+#         query = select(Product).where(Product.product_code == formatted_product["product_id"])
+#         result = await db.execute(query)
+#         existing_product = result.scalars().first()
+
+#         if existing_product:
+#             # Update existing product
+#             existing_product.product_title = formatted_product["product_name"]
+#             existing_product.item_group = formatted_product["item_group"]
+#             existing_product.product_description = formatted_product["product_description"]
+#             existing_product.product_image = formatted_product["product_image"]
+#             existing_product.images = formatted_product["images"]
+#             existing_product.benefits = formatted_product["benefits"]
+#             existing_product.plans = formatted_product["plans"]
+#             existing_product.updated_at = datetime.utcnow()
+            
+#             product_response = existing_product
+#             action = "updated"
+#         else:
+#             # Create new product
+#             new_product = Product(
+#                 id=uuid.uuid4(),
+#                 product_code=formatted_product["product_id"],
+#                 product_title=formatted_product["product_name"],
+#                 item_group=formatted_product["item_group"],
+#                 product_description=formatted_product["product_description"],
+#                 product_image=formatted_product["product_image"],
+#                 images=formatted_product["images"],
+#                 benefits=formatted_product["benefits"],
+#                 plans=formatted_product["plans"]
+#             )
+#             db.add(new_product)
+#             product_response = new_product
+#             action = "created"
+
+#         return {
+#             "product_code": product_response.product_code,
+#             "action": action,
+#             "status": "success"
+#         }
+
+#     except Exception as e:
+#         logging.error(f"Error processing product {formatted_product['product_id']}: {str(e)}")
+#         return {
+#             "product_code": formatted_product["product_id"],
+#             "action": "failed",
+#             "status": "error",
+#             "error": str(e)
+#         }
+        
+        
+        
+
+# @router.post("/webhook/product-update")
+# async def site_product_webhook(
+#     data: dict,
+#     db: AsyncSession = Depends(get_db),
+#     api_key: str = Depends(verify_api_key)
+# ):
+#     """
+#     Endpoint to receive product updates from Frappe and store them in the database.
+#     This endpoint:
+#     1. Validates the incoming webhook
+#     2. Processes each product in the data
+#     3. Updates or creates products in the database
+#     4. Returns a summary of the operations performed
+#     """
+#     logging.info("Received webhook data for product update")
+    
+#     results = []
+    
+#     if "items" not in data:
+#         raise HTTPException(
+#             status_code=400,
+#             detail="Invalid webhook data format - 'items' field is required"
+#         )
+
+#     try:
+#         # Process each product in the webhook data
+#         for item in data["items"]:
+#             result = await save_or_update_product(db, item)
+#             results.append(result)
+
+#         # Commit the transaction
+#         await db.commit()
+
+#         # Prepare the response
+#         successful = [r for r in results if r["status"] == "success"]
+#         failed = [r for r in results if r["status"] == "error"]
+
+#         return {
+#             "status": "success",
+#             "message": f"Processed {len(results)} products",
+#             "details": {
+#                 "successful": len(successful),
+#                 "failed": len(failed),
+#                 "results": results
+#             }
+#         }
+
+#     except Exception as e:
+#         # If anything goes wrong, rollback the transaction
+#         await db.rollback()
+#         logging.error(f"Error processing webhook: {str(e)}")
+#         raise HTTPException(
+#             status_code=500,
+#             detail=f"Error processing webhook: {str(e)}"
+#         )
 
 
 

@@ -120,110 +120,44 @@ async def fetch_and_save_product(db: AsyncSession) -> dict:
 
 
 
-
-
 async def fetch_products_from_db(db: AsyncSession) -> dict:
-    # First, fetch existing products from database
-    query = select(Product)
-    result = await db.execute(query)
-    products = result.scalars().all()
-
-    # If no products in DB, attempt to fetch from API
-    if not products:
-        return await fetch_and_save_product(db)
-
-    # Attempt to fetch latest product data from API
-    url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
-    updated_products = []
-
+    """
+    Fetch products from the database without updating from API.
+    """
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            api_product_data = response.json().get("message", {}).get("items", [])
+        # Fetch all products from database
+        query = select(Product)
+        result = await db.execute(query)
+        products = result.scalars().all()
 
-            # Compare and update products
-            for item in api_product_data:
-                product_id = item.get("name")
-                
-                # Find matching product in existing database
-                matching_product = next((p for p in products if p.product_code == product_id), None)
+        if not products:
+            return {"message": "No products found in database", "products": []}
 
-                # Prepare formatted product data
-                formatted_product = {
-                    "product_id": item.get("name"),
-                    "product_name": item.get("item_name"),
-                    "item_group": item.get("item_group", "Unknown"),
-                    "product_description": item.get("description", "No description provided."),
-                    "product_image": item.get("images", [None])[0],
-                    "images": item.get("images", []),
-                    "benefits": item.get("benefits", []),
-                    "prices": item.get("grouped_data", {}),
-                }
+        # Prepare response with products directly from database
+        response_products = []
+        for product in products:
+            response_products.append({
+                "id": str(product.id),
+                "product_code": product.product_code,
+                "product_title": product.product_title,
+                "item_group": product.item_group,
+                "product_description": product.product_description,
+                "product_image": product.product_image,
+                "images": product.images,
+                "benefits": product.benefits,
+                "plans": product.plans
+            })
 
-                # Update or create product
-                if matching_product:
-                    # Update existing product
-                    matching_product.product_title = formatted_product["product_name"]
-                    matching_product.item_group = formatted_product["item_group"]
-                    matching_product.product_description = formatted_product["product_description"]
-                    matching_product.product_image = formatted_product["product_image"]
-                    matching_product.images = formatted_product["images"]
-                    matching_product.benefits = formatted_product["benefits"]
-                    matching_product.prices = formatted_product["prices"]
-                    updated_products.append(matching_product)
-                else:
-                    # Create new product if not exists
-                    new_product = Product(
-                        id=uuid.uuid4(),
-                        product_code=formatted_product["product_id"],
-                        product_title=formatted_product["product_name"],
-                        item_group=formatted_product["item_group"],
-                        product_description=formatted_product["product_description"],
-                        product_image=formatted_product["product_image"],
-                        images=formatted_product["images"],
-                        benefits=formatted_product["benefits"],
-                        prices=formatted_product["prices"],
-                    )
-                    db.add(new_product)
-                    updated_products.append(new_product)
-
-            # Commit changes
-            await db.commit()
-
+        return {
+            "message": "Products fetched successfully", 
+            "products": response_products
+        }
     except Exception as e:
-        logging.warning(f"API fetch failed, using existing database products: {str(e)}")
-        updated_products = products
-
-    # Prepare response with plans
-    response_products = []
-    for product in updated_products:
-        prices = product.prices or {}
-        plans = {}
-        for plan_name in ["Standard", "Custom", "Free"]:
-            plan_details = prices.get(plan_name, {})
-            plans[plan_name] = {
-                "description": plan_details.get("plan_descriptions", []),
-                "pricing": plan_details.get("price_range", []),
-                "training_and_setup": plan_details.get("training_and_setup", []),
-            }
-
-        response_products.append({
-            "id": str(product.id),
-            "product_code": product.product_code,
-            "product_title": product.product_title,
-            "item_group": product.item_group,
-            "product_description": product.product_description,
-            "product_image": product.product_image,
-            "images": product.images,
-            "benefits": product.benefits,
-            "plans": product.plans
-        })
-
-    return {
-        "message": "Fetched and updated products" if updated_products else "No products available", 
-        "products": response_products
-    }
+        logging.error(f"Error fetching products from database: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error fetching products from database"
+        )
 
 
 async def fetch_single_product_from_db(product_id: uuid.UUID, db: AsyncSession) -> dict:
