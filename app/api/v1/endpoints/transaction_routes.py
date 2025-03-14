@@ -1,10 +1,12 @@
+import json
+import re
 from typing import Dict, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from app.api.database.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.schemas.transaction_schema import TransactionPayload
-from app.api.services.transaction_services import get_transaction_by_id, get_transactions_by_user_id, store_transaction
+from app.api.services.transaction_services import CustomJSONEncoder, get_transaction_by_id, get_transactions_by_user_id, store_transaction
 from app.api.security.payment_verification import verify_paystack_transaction, verify_webhook_signature
 from app.api.models.transactions import UserTransactions
 import logging
@@ -13,6 +15,8 @@ import logging
 
 
 import os
+
+from app.api.utils.frappe_utils import store_site_data
 
 
 
@@ -33,12 +37,151 @@ async def store_transactions_payload(transaction_data: TransactionPayload,
     return await store_transaction(transaction_data.model_dump(), db) 
 
 
-@router.post("/webhook/site-creation")
-async def site_creation_webhook(data: dict):
-    # Handle the webhook data
-    print("4444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444", data)
-    return {"status": "received"}
+# @router.post("/webhook/site-creation")
+# async def site_creation_webhook(data: dict):
+#     # Handle the webhook data
+#     print("4444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444", data)
+#     return {"status": "received"}
 
+
+
+@router.post("/webhook/site-creation")
+async def site_creation_webhook(data: dict, db: AsyncSession = Depends(get_db)):
+    """
+    Handle webhook from site creation service and store site data in Frappe when site is created successfully.
+    """
+    logging.info(f"Received webhook data: {data}")
+    
+    try:
+        # Check if site creation was successful
+        if data.get("status") == "success" and "site_name" in data:
+            # Extract site name directly from the data
+            site_name = data.get("site_name")
+            logging.info(f"Extracted site name: {site_name}")
+            
+            # Query the transaction to get site data
+            try:
+                result = await db.execute(
+                    select(UserTransactions).filter(UserTransactions.site_name == site_name)
+                    .order_by(UserTransactions.created_at.desc())
+                    .limit(1)
+                )
+                transaction = result.scalar_one_or_none()
+                
+                if not transaction:
+                    logging.error(f"No transaction found for site: {site_name}")
+                    return {"status": "error", "message": "Transaction not found"}
+                
+                logging.info(f"Retrieved transaction for site: {site_name}")
+            except Exception as db_error:
+                logging.error(f"Database query error: {str(db_error)}")
+                return {"status": "error", "message": "Database query failed"}
+            
+            # Prepare site data for Frappe
+            site_data = {
+                "first_name": transaction.first_name,
+                "last_name": transaction.last_name,
+                "email": transaction.email,
+                "phone": transaction.phone,
+                "country": transaction.country,
+                "company_name": transaction.company_name,
+                "organization": transaction.organization,
+                "site_name": transaction.site_name,
+                "valid_from": transaction.valid_from.strftime("%Y-%m-%d"),
+                "valid_upto": transaction.valid_upto.strftime("%Y-%m-%d"),
+                "status": transaction.payment_status,
+                "product": transaction.plan
+            }
+            
+            logging.info(f"Prepared site data for Frappe: {json.dumps(site_data, indent=2)}")
+            
+            # Store the data in Frappe
+            try:
+                logging.info(f"Attempting to store site data for {site_name} in Frappe")
+                frappe_response = await store_site_data(site_data)
+                
+                logging.info(f"Frappe response received: {frappe_response}")
+                
+                # Update transaction with Frappe data storage status
+                transaction.frappe_status = "success"
+                transaction.frappe_response = json.dumps(frappe_response, cls=CustomJSONEncoder)
+                transaction.site_creation_status = "complete"
+                
+                try:
+                    await db.commit()
+                    logging.info(f"Transaction updated successfully for {site_name}")
+                except Exception as commit_error:
+                    logging.error(f"Error committing transaction: {str(commit_error)}")
+                    await db.rollback()
+                
+                logging.info(f"Site data successfully stored in Frappe for {site_name}")
+                return {
+                    "status": "success", 
+                    "message": "Site data stored in Frappe",
+                    "frappe_response": frappe_response
+                }
+                
+            except Exception as e:
+                error_msg = f"Failed to store site data in Frappe: {str(e)}"
+                logging.error(error_msg)
+                
+                # Update transaction with failure status
+                transaction.frappe_status = "failed"
+                transaction.frappe_error = error_msg
+                
+                try:
+                    await db.commit()
+                    logging.info(f"Transaction updated with failure status for {site_name}")
+                except Exception as commit_error:
+                    logging.error(f"Error committing failure status: {str(commit_error)}")
+                    await db.rollback()
+                
+                return {"status": "error", "message": error_msg}
+        
+        # Update site creation status if not successful
+        elif data.get("status") == "failed":
+            site_name_match = re.search(r'Site ([^\s]+) failed', data.get("message", ""))
+            if site_name_match:
+                site_name = site_name_match.group(1)
+                logging.warning(f"Site creation failed for: {site_name}")
+                
+                try:
+                    result = await db.execute(
+                        select(UserTransactions).filter(UserTransactions.site_name == site_name)
+                        .order_by(UserTransactions.created_at.desc())
+                        .limit(1)
+                    )
+                    transaction = result.scalar_one_or_none()
+                    
+                    if transaction:
+                        transaction.site_creation_status = "failed"
+                        transaction.site_creation_error = data.get("message", "Unknown error")
+                        
+                        try:
+                            await db.commit()
+                            logging.info(f"Updated failed site creation status for {site_name}")
+                        except Exception as commit_error:
+                            logging.error(f"Error committing failed site creation status: {str(commit_error)}")
+                            await db.rollback()
+                    else:
+                        logging.warning(f"No transaction found for failed site: {site_name}")
+                
+                except Exception as db_error:
+                    logging.error(f"Error processing failed site creation: {str(db_error)}")
+        
+        # Just acknowledge receipt for any other webhook data
+        logging.info("Webhook data received but not processed")
+        return {"status": "received"}
+        
+    except Exception as e:
+        logging.error(f"Unexpected error processing site creation webhook: {str(e)}")
+        return {"status": "error", "message": str(e)}
+    
+    
+    
+    
+    
+    
 
 # PAYSTACK WEBHOOK
 @router.post("/verify-webhook-payload/webhookpaystack")

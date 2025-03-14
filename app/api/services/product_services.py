@@ -6,7 +6,7 @@ import httpx
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import requests
-from app.api.config.erp_config import FRAPPE_URL, HEADERS
+from app.api.config.erp_config import FRAPPE_BASE_URL, HEADERS
 from app.api.schemas.product_schema import ItemUpdateRequest
 import logging
 
@@ -30,7 +30,7 @@ logging.basicConfig(
 
 
 async def fetch_and_save_product(db: AsyncSession) -> dict:
-    url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
+    url = f"{FRAPPE_BASE_URL}/api/method/clientportalapp.products.get_products_pricing"
     product_data = []
 
     async with httpx.AsyncClient() as client:
@@ -190,7 +190,7 @@ async def fetch_single_product_from_db(product_id: uuid.UUID, db: AsyncSession) 
         }
 
         # Attempt to fetch latest data from API
-        url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
+        url = f"{FRAPPE_BASE_URL}/api/method/clientportalapp.products.get_products_pricing"
         
         try:
             async with httpx.AsyncClient() as client:
@@ -259,7 +259,7 @@ def update_item_in_frappe(payload: ItemUpdateRequest):
     try:
         # Update the main Item record
         item_response = requests.put(
-            f"{FRAPPE_URL}/api/method/clientportalapp.product.update_item_from_api/{payload.name}",
+            f"{FRAPPE_BASE_URL}/api/method/clientportalapp.product.update_item_from_api/{payload.name}",
             json=item_data,
              headers = {
             # "Authorization": f"token {API_KEY}:{API_SECRET}"
@@ -276,7 +276,7 @@ def update_item_in_frappe(payload: ItemUpdateRequest):
         if payload.benefits:
             for benefit in payload.benefits:
                 response = requests.post(
-                    f"{FRAPPE_URL}/api/resource/Benefits",
+                    f"{FRAPPE_BASE_URL}/api/resource/Benefits",
                     json={"parent": payload.name, **benefit},
                     headers=HEADERS
                 )
@@ -290,7 +290,7 @@ def update_item_in_frappe(payload: ItemUpdateRequest):
         if payload.images:
             for image in payload.images:
                 response = requests.post(
-                    f"{FRAPPE_URL}/api/resource/ItemImage",
+                    f"{FRAPPE_BASE_URL}/api/resource/ItemImage",
                     json={"parent": payload.name, "images": image},
                     headers=HEADERS
                 )
@@ -303,7 +303,7 @@ def update_item_in_frappe(payload: ItemUpdateRequest):
         # Update or add Item Price
         if payload.price is not None:
             response = requests.post(
-                f"{FRAPPE_URL}/api/resource/Item Price",
+                f"{FRAPPE_BASE_URL}/api/resource/Item Price",
                 json={
                     "item_code": payload.name,
                     "price_list_rate": payload.price,
@@ -338,7 +338,7 @@ def update_item_in_frappe(payload: ItemUpdateRequest):
 #     """
 #     Fetch product data from the Frappe API, format it, and save it to the database.
 #     """
-#     url = "http://clientportal.org:8080/api/method/clientportalapp.products.get_products_pricing"
+#     url = f"{FRAPPE_BASE_URL}/api/method/clientportalapp.products.get_products_pricing"
 
 #     # Fetch product data from the API
 #     async with httpx.AsyncClient() as client:

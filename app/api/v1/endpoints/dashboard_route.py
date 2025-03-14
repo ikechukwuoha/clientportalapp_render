@@ -11,6 +11,8 @@ from sqlalchemy import select
 from app.api.database.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy import and_ 
+
 
 from typing import Dict, Any
 import logging
@@ -24,6 +26,17 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+
+
+def get_site_base_data(site):
+    """Helper function to get basic site data from database."""
+    return {
+        "site_name": site.site_name,
+        "active": site.active_sites,
+        "creation_date": site.created_at,
+        "country": site.location,
+    }
 
 router = APIRouter()
 
@@ -78,7 +91,6 @@ async def get_overview_count(email: str = Query(..., description="The email to f
 
 
 
-
 @router.get("/sites-data", tags=["dashboard"])
 async def fetch_site_data(id: str, db: AsyncSession = Depends(get_db)):
     """
@@ -90,11 +102,30 @@ async def fetch_site_data(id: str, db: AsyncSession = Depends(get_db)):
     try:
         data = await get_site_data(id=id, db=db)
         return data
+    except TypeError as e:
+        if "got an unexpected keyword argument 'id'" in str(e):
+            return {
+                "status": "error",
+                "message": "This user has not Purchased any Erp Plan Yet"
+            }
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-    
-    
-    
+
+
+# @router.get("/sites-data", tags=["dashboard"])
+# async def fetch_site_data(id: str, db: AsyncSession = Depends(get_db)):
+#     """
+#     Fetch site data for the given user ID.
+#     """
+#     if not id:
+#         raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
+
+#     try:
+#         data = await get_site_data(id=id, db=db)
+#         return data
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
     
     
     
@@ -103,7 +134,7 @@ async def fetch_site_data(id: str, db: AsyncSession = Depends(get_db)):
 async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)):
     """
     Receives consolidated site data from the webhook, updates or creates corresponding
-    SiteData records for the associated user, commits changes, and refreshes the objects.
+    SiteData records, deletes sites not present in the webhook, and commits changes.
     """
     try:
         # Parse JSON payload
@@ -132,8 +163,31 @@ async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)
             logger.warning(f"No user found for email: {email}")
             return {"status": "error", "message": f"No user found for email: {email}"}
 
-        # Process each site data entry
+        # Get incoming site names
+        incoming_site_names = {site.get("site_info", {}).get("site_name") for site in sites_data if site.get("site_info", {}).get("site_name")}
+
+        # Find and delete sites not in the incoming data
+        result = await db.execute(
+            select(SiteData).filter(
+                and_(
+                    SiteData.user_id == user.id,
+                    SiteData.site_name.notin_(incoming_site_names)
+                )
+            )
+        )
+        sites_to_delete = result.scalars().all()
+        
+        deleted_sites_count = 0
+        for site in sites_to_delete:
+            await db.delete(site)
+            deleted_sites_count += 1
+            logger.info(f"Deleted site not present in webhook: {site.site_name}")
+
+        # Process each site data entry (update or create)
         totals = data.get("data", {}).get("totals", {})
+        total_sites_count = totals.get("total_sites", 0)
+        active_sites_count = totals.get("active_sites", 0)
+
         updated_sites = 0
 
         for site in sites_data:
@@ -163,6 +217,8 @@ async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)
                 existing_site.active_modules = stats.get("modules", [])
                 existing_site.sites_data = site  # Store full site data
                 existing_site.updated_at = datetime.now()
+                existing_site.total_site_counts = total_sites_count
+                existing_site.active_site_counts = active_sites_count
                 logger.info(f"Updated site: {site_name}")
             else:
                 # Create a new SiteData record
@@ -177,7 +233,9 @@ async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)
                     active_users=stats.get("active_users_list", []),
                     active_modules=stats.get("modules", []),
                     sites_data=site,
-                    user_id=user.id
+                    user_id=user.id,
+                    total_site_counts=total_sites_count,
+                    active_site_counts=active_sites_count
                 )
                 db.add(new_site)
                 logger.info(f"Created new site: {site_name}")
@@ -197,14 +255,17 @@ async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)
                     await db.refresh(refreshed_site)
 
         # Log summary information
-        logger.info(f"Site Data Summary - Email: {email}, Updated Sites: {updated_sites}, "
-                    f"Total Sites (from payload): {totals.get('total_sites', 0)}, "
-                    f"Active Sites (from payload): {totals.get('active_sites', 0)}")
+        logger.info(f"Site Data Summary - Email: {email}, "
+                    f"Updated Sites: {updated_sites}, "
+                    f"Deleted Sites: {deleted_sites_count}, "
+                    f"Total Sites (from payload): {total_sites_count}, "
+                    f"Active Sites (from payload): {active_sites_count}")
 
         return {
             "status": "success",
-            "message": f"Updated {updated_sites} sites for user {email}",
-            "updated_sites": updated_sites
+            "message": f"Updated {updated_sites} sites, deleted {deleted_sites_count} sites for user {email}",
+            "updated_sites": updated_sites,
+            "deleted_sites": deleted_sites_count
         }
 
     except Exception as e:
@@ -213,22 +274,267 @@ async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)
 
 
 
+# @router.post("/webhook/site-data")
+# async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)):
+#     """
+#     Receives consolidated site data from the webhook, updates or creates corresponding
+#     SiteData records for the associated user, commits changes, and refreshes the objects.
+#     """
+#     try:
+#         # Parse JSON payload
+#         data = await request.json()
+#         logger.info(f"Received webhook: {data}")
+
+#         # Check for success status in payload
+#         if data.get("status") != "success":
+#             error_msg = data.get("message", "Unknown error")
+#             logger.error(f"Error in webhook data: {error_msg}")
+#             return {"status": "error", "message": f"Received error data: {error_msg}"}
+
+#         # Extract email from first site's site_info
+#         sites_data = data.get("data", {}).get("sites_data", [])
+#         email = None
+#         if sites_data and "site_info" in sites_data[0]:
+#             email = sites_data[0]["site_info"].get("email")
+#         if not email:
+#             logger.error("Email not found in webhook data")
+#             return {"status": "error", "message": "Email not found in data"}
+
+#         # Fetch user from database using the email
+#         result = await db.execute(select(User).filter(User.email == email))
+#         user = result.scalar_one_or_none()
+#         if not user:
+#             logger.warning(f"No user found for email: {email}")
+#             return {"status": "error", "message": f"No user found for email: {email}"}
+
+#         # Process each site data entry
+#         totals = data.get("data", {}).get("totals", {})
+#         total_sites_count = totals.get("total_sites", 0)
+#         active_sites_count = totals.get("active_sites", 0)
+
+#         updated_sites = 0
+
+#         for site in sites_data:
+#             site_info = site.get("site_info", {})
+#             stats = site.get("stats", {})
+#             site_name = site_info.get("site_name")
+#             site_status = site_info.get("site_status")
+#             country = site_info.get("country")
+
+#             if not site_name:
+#                 logger.error("Site name missing in site data")
+#                 continue
+
+#             # Check if the site already exists in the database
+#             result = await db.execute(select(SiteData).filter(SiteData.site_name == site_name))
+#             existing_site = result.scalar_one_or_none()
+
+#             if existing_site:
+#                 # Update the existing site's stats and info
+#                 existing_site.total_users_count = stats.get("total_users", 0)
+#                 existing_site.active_users_count = stats.get("active_users", 0)
+#                 existing_site.active_modules_count = stats.get("active_modules", 0)
+#                 existing_site.active_sites = site_status
+#                 existing_site.location = country 
+#                 existing_site.total_users = stats.get("users", [])
+#                 existing_site.active_users = stats.get("active_users_list", [])
+#                 existing_site.active_modules = stats.get("modules", [])
+#                 existing_site.sites_data = site  # Store full site data
+#                 existing_site.updated_at = datetime.now()
+#                 existing_site.total_site_counts = total_sites_count  # Update total_site_counts
+#                 existing_site.active_site_counts = active_sites_count  # Update active_site_counts
+#                 logger.info(f"Updated site: {site_name}")
+#             else:
+#                 # Create a new SiteData record
+#                 new_site = SiteData(
+#                     site_name=site_name,
+#                     active_sites=site_status,
+#                     location=country,
+#                     total_users_count=stats.get("total_users", 0),
+#                     active_users_count=stats.get("active_users", 0),
+#                     active_modules_count=stats.get("active_modules", 0),
+#                     total_users=stats.get("users", []),
+#                     active_users=stats.get("active_users_list", []),
+#                     active_modules=stats.get("modules", []),
+#                     sites_data=site,
+#                     user_id=user.id,
+#                     total_site_counts=total_sites_count,  # Set total_site_counts
+#                     active_site_counts=active_sites_count  # Set active_site_counts
+#                 )
+#                 db.add(new_site)
+#                 logger.info(f"Created new site: {site_name}")
+
+#             updated_sites += 1
+
+#         # Commit the database changes
+#         await db.commit()
+
+#         # Refresh each site record to ensure latest state is loaded
+#         for site in sites_data:
+#             site_name = site.get("site_info", {}).get("site_name")
+#             if site_name:
+#                 result = await db.execute(select(SiteData).filter(SiteData.site_name == site_name))
+#                 refreshed_site = result.scalar_one_or_none()
+#                 if refreshed_site:
+#                     await db.refresh(refreshed_site)
+
+#         # Log summary information
+#         logger.info(f"Site Data Summary - Email: {email}, Updated Sites: {updated_sites}, "
+#                     f"Total Sites (from payload): {total_sites_count}, "
+#                     f"Active Sites (from payload): {active_sites_count}")
+
+#         return {
+#             "status": "success",
+#             "message": f"Updated {updated_sites} sites for user {email}",
+#             "updated_sites": updated_sites
+#         }
+
+#     except Exception as e:
+#         logger.exception("An error occurred while processing the webhook data")
+#         return {"status": "error", "message": str(e)}  
+    
 
 
 
 
 
-def get_site_base_data(site):
-    """Helper function to get basic site data from database."""
-    return {
-        "site_name": site.site_name,
-        "active": site.active_sites,
-        "creation_date": site.created_at,
-        "country": site.location,
-    }
+
+
+
+
+
+# @router.post("/webhook/site-data")
+# async def receive_site_data(request: Request, db: AsyncSession = Depends(get_db)):
+#     """
+#     Receives consolidated site data from the webhook, updates or creates corresponding
+#     SiteData records for the associated user, commits changes, and refreshes the objects.
+#     """
+#     try:
+#         # Parse JSON payload
+#         data = await request.json()
+#         logger.info(f"Received webhook: {data}")
+
+#         # Check for success status in payload
+#         if data.get("status") != "success":
+#             error_msg = data.get("message", "Unknown error")
+#             logger.error(f"Error in webhook data: {error_msg}")
+#             return {"status": "error", "message": f"Received error data: {error_msg}"}
+
+#         # Extract email from first site's site_info
+#         sites_data = data.get("data", {}).get("sites_data", [])
+#         email = None
+#         if sites_data and "site_info" in sites_data[0]:
+#             email = sites_data[0]["site_info"].get("email")
+#         if not email:
+#             logger.error("Email not found in webhook data")
+#             return {"status": "error", "message": "Email not found in data"}
+
+#         # Fetch user from database using the email
+#         result = await db.execute(select(User).filter(User.email == email))
+#         user = result.scalar_one_or_none()
+#         if not user:
+#             logger.warning(f"No user found for email: {email}")
+#             return {"status": "error", "message": f"No user found for email: {email}"}
+
+#         # Process each site data entry
+#         totals = data.get("data", {}).get("totals", {})
+#         print("OKPATUKPTUKPO33333333333333333333344434343434333333333333333FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", totals)
+        
+#         # total_sites_count = totals.get("total_sites", 0)
+#         # active_sites_count = totals.get("active_sites", 0)
+        
+#         updated_sites = 0
+
+#         for site in sites_data:
+#             site_info = site.get("site_info", {})
+#             stats = site.get("stats", {})
+#             site_name = site_info.get("site_name")
+#             site_status = site_info.get("site_status")
+#             country = site_info.get("country")
+
+#             if not site_name:
+#                 logger.error("Site name missing in site data")
+#                 continue
+
+#             # Check if the site already exists in the database
+#             result = await db.execute(select(SiteData).filter(SiteData.site_name == site_name))
+#             existing_site = result.scalar_one_or_none()
+
+#             if existing_site:
+#                 # Update the existing site's stats and info
+#                 existing_site.total_users_count = stats.get("total_users", 0)
+#                 existing_site.active_users_count = stats.get("active_users", 0)
+#                 existing_site.active_modules_count = stats.get("active_modules", 0)
+#                 existing_site.active_sites = site_status
+#                 existing_site.location = country 
+#                 existing_site.total_users = stats.get("users", [])
+#                 existing_site.active_users = stats.get("active_users_list", [])
+#                 existing_site.active_modules = stats.get("modules", [])
+#                 existing_site.sites_data = site  # Store full site data
+#                 existing_site.updated_at = datetime.now()
+#                 existing_site.total_site_counts = totals.get("total_sites", 0)
+#                 existing_site.active_site_counts = totals.get("active_sites", 0)
+#                 existing_site.updated_at = datetime.now()
+                
+#                 logger.info(f"Updated site: {site_name}")
+#             else:
+#                 # Create a new SiteData record
+#                 new_site = SiteData(
+#                     site_name=site_name,
+#                     active_sites=site_status,
+#                     location=country,
+#                     total_users_count=stats.get("total_users", 0),
+#                     active_users_count=stats.get("active_users", 0),
+#                     active_modules_count=stats.get("active_modules", 0),
+#                     total_users=stats.get("users", []),
+#                     active_users=stats.get("active_users_list", []),
+#                     active_modules=stats.get("modules", []),
+#                     sites_data=site,
+#                     user_id=user.id
+#                 )
+#                 db.add(new_site)
+#                 logger.info(f"Created new site: {site_name}")
+
+#             updated_sites += 1
+
+#         # Commit the database changes
+#         await db.commit()
+
+#         # Refresh each site record to ensure latest state is loaded
+#         for site in sites_data:
+#             site_name = site.get("site_info", {}).get("site_name")
+#             if site_name:
+#                 result = await db.execute(select(SiteData).filter(SiteData.site_name == site_name))
+#                 refreshed_site = result.scalar_one_or_none()
+#                 if refreshed_site:
+#                     await db.refresh(refreshed_site)
+
+#         # Log summary information
+#         logger.info(f"Site Data Summary - Email: {email}, Updated Sites: {updated_sites}, "
+#                     f"Total Sites (from payload): {totals.get('total_sites', 0)}, "
+#                     f"Active Sites (from payload): {totals.get('active_sites', 0)}")
+
+#         return {
+#             "status": "success",
+#             "message": f"Updated {updated_sites} sites for user {email}",
+#             "updated_sites": updated_sites
+#         }
+
+#     except Exception as e:
+#         logger.exception("An error occurred while processing the webhook data")
+#         return {"status": "error", "message": str(e)}
+
+
+
+
 
 @router.get("/active-modules", tags=["destructured dashboard data"])
-async def get_active_modules(id: str, db: AsyncSession = Depends(get_db)):
+async def get_active_modules(
+    id: str = Query(..., description="User ID to fetch active modules for"),
+    date: str = Query(None, description="Date filter (e.g., 'Last 7 days')"),
+    search: str = Query(None, description="Search term to filter modules"),
+    db: AsyncSession = Depends(get_db)
+):
     """Fetch active modules data from database."""
     if not id:
         raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
@@ -247,15 +553,26 @@ async def get_active_modules(id: str, db: AsyncSession = Depends(get_db)):
         total_active_modules = 0
 
         for site in user_sites:
-            base_data = get_site_base_data(site)
             modules_count = site.active_modules_count or 0
             total_active_modules += modules_count
 
+            # Filter modules based on the search term
+            filtered_modules = []
+            if search:
+                for module in site.active_modules or []:
+                    if (
+                        search.lower() in module.get("module_name", "").lower()
+                        or search.lower() in module.get("app_name", "").lower()
+                    ):
+                        filtered_modules.append(module)
+            else:
+                filtered_modules = site.active_modules or []
+
             modules_data.append({
-                **base_data,
+                "site_name": site.site_name,  # Only include site name
                 "active_modules": {
-                    "count": modules_count,
-                    "modules": site.active_modules or []
+                    "count": len(filtered_modules),  # Update count based on filtered modules
+                    "modules": filtered_modules
                 }
             })
 
@@ -267,14 +584,57 @@ async def get_active_modules(id: str, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logging.error(f"Database error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-    
-    
-    
-    
 
-@router.get("/active-sites", tags=["destructured dashboard data"])
-async def get_active_sites(id: str, db: AsyncSession = Depends(get_db)):
-    """Fetch active sites data from database."""
+
+
+
+
+# @router.get("/active-modules", tags=["destructured dashboard data"])
+# async def get_active_modules(id: str, db: AsyncSession = Depends(get_db)):
+#     """Fetch active modules data from database."""
+#     if not id:
+#         raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
+
+#     try:
+#         result = await db.execute(select(SiteData).where(SiteData.user_id == id))
+#         user_sites = result.scalars().all()
+
+#         if not user_sites:
+#             return {
+#                 "total_active_modules": 0,
+#                 "modules_by_site": []
+#             }
+
+#         modules_data = []
+#         total_active_modules = 0
+
+#         for site in user_sites:
+#             modules_count = site.active_modules_count or 0
+#             total_active_modules += modules_count
+
+#             modules_data.append({
+#                 "site_name": site.site_name,  # Only include site name
+#                 "active_modules": {
+#                     "count": modules_count,
+#                     "modules": site.active_modules or []
+#                 }
+#             })
+
+#         return {
+#             "total_active_modules": total_active_modules,
+#             "modules_by_site": modules_data
+#         }
+
+#     except Exception as e:
+#         logging.error(f"Database error: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    
+    
+    
+    
+@router.get("/active-sites-count", tags=["destructured dashboard data"])
+async def get_active_sites_count(id: str, db: AsyncSession = Depends(get_db)):
+    """Fetch active sites count from database."""
     if not id:
         raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
 
@@ -283,22 +643,37 @@ async def get_active_sites(id: str, db: AsyncSession = Depends(get_db)):
         user_sites = result.scalars().all()
 
         if not user_sites:
-            return {
-                "total_sites": 0,
-                "active_sites_count": 0,
-                "active_sites": []
-            }
+            return {"active_sites_count": 0}
 
-        active_sites = [
-            get_site_base_data(site)
-            for site in user_sites if site.active_sites
-        ]
+        # Get counts from the first site record
+        active_sites_count = user_sites[0].active_site_counts if user_sites else 0
+        
+        return {"active_sites_count": active_sites_count}
 
-        return {
-            "total_sites": len(user_sites),
-            "active_sites_count": len(active_sites),
-            "active_sites": active_sites
-        }
+    except Exception as e:
+        logging.error(f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    
+    
+
+
+@router.get("/total-sites-count", tags=["destructured dashboard data"])
+async def get_total_sites_count(id: str, db: AsyncSession = Depends(get_db)):
+    """Fetch total sites count from database."""
+    if not id:
+        raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
+
+    try:
+        result = await db.execute(select(SiteData).where(SiteData.user_id == id))
+        user_sites = result.scalars().all()
+
+        if not user_sites:
+            return {"total_sites_count": 0}
+
+        # Get total sites count from the first site record
+        total_sites_count = user_sites[0].total_site_counts if user_sites else 0
+        
+        return {"total_sites_count": total_sites_count}
 
     except Exception as e:
         logging.error(f"Database error: {str(e)}")
@@ -319,34 +694,24 @@ async def get_active_users(id: str, db: AsyncSession = Depends(get_db)):
 
         if not user_sites:
             return {
-                "total_active_users": 0,
-                "active_users_by_site": []
+                "sites": []
             }
 
-        users_data = []
-        total_active_users = 0
+        sites = []
 
         for site in user_sites:
-            base_data = get_site_base_data(site)
-            active_users_count = site.active_users_count or 0
-            total_active_users += active_users_count
-
-            users_data.append({
-                **base_data,
-                "active_users": {
-                    "count": active_users_count,
-                    "users": site.active_users or []
-                }
+            sites.append({
+                "site_name": site.site_name,
+                "users": site.active_users or []
             })
 
         return {
-            "total_active_users": total_active_users,
-            "active_users_by_site": users_data
+            "sites": sites
         }
 
     except Exception as e:
         logging.error(f"Database error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}") 
     
     
 
@@ -362,28 +727,18 @@ async def get_total_users(id: str, db: AsyncSession = Depends(get_db)):
 
         if not user_sites:
             return {
-                "total_users": 0,
                 "users_by_site": []
             }
 
         users_data = []
-        total_users_count = 0
 
         for site in user_sites:
-            base_data = get_site_base_data(site)
-            site_total_users = site.total_users_count or 0
-            total_users_count += site_total_users
-
             users_data.append({
-                **base_data,
-                "total_users": {
-                    "count": site_total_users,
-                    "users": site.total_users or []
-                }
+                "site_name": site.site_name,
+                "users": site.total_users or []
             })
 
         return {
-            "total_users": total_users_count,
             "users_by_site": users_data
         }
 
@@ -392,6 +747,56 @@ async def get_total_users(id: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
+
+
+@router.get("/site-totals", tags=["destructured dashboard data"])
+async def get_site_totals(id: str, db: AsyncSession = Depends(get_db)):
+    """Fetch only total sites count from database."""
+    if not id:
+        raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
+
+    try:
+        result = await db.execute(select(SiteData).where(SiteData.user_id == id))
+        user_sites = result.scalars().all()
+
+        if not user_sites:
+            return {"total_sites": 0}
+
+        # Get total sites count from the first site record
+        total_sites_count = user_sites[0].total_site_counts if user_sites else 0
+        
+        # Return only the total_sites value
+        return {"total_sites": total_sites_count}
+
+    except Exception as e:
+        logging.error(f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    
+    
+
+
+@router.get("/active-sites-total", tags=["destructured dashboard data"])
+async def get_active_sites_total(id: str, db: AsyncSession = Depends(get_db)):
+    """Fetch only active sites count from database."""
+    if not id:
+        raise HTTPException(status_code=400, detail="Query parameter 'id' is required")
+
+    try:
+        result = await db.execute(select(SiteData).where(SiteData.user_id == id))
+        user_sites = result.scalars().all()
+
+        if not user_sites:
+            return {"active_sites": 0}
+
+        # Get active sites count from the first site record
+        active_sites_count = user_sites[0].active_site_counts if user_sites else 0
+        
+        # Return only the active_sites value
+        return {"active_sites": active_sites_count}
+
+    except Exception as e:
+        logging.error(f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
 

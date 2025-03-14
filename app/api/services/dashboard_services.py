@@ -5,7 +5,7 @@ import httpx
 import logging
 import traceback
 from fastapi import Depends, HTTPException, Request
-
+from app.api.config.erp_config import FRAPPE_BASE_URL
 
 from datetime import datetime, timedelta
 import logging
@@ -40,7 +40,7 @@ async def fetch_total_users():
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get("http://clientportal.org:8080/api/method/clientportalapp_admin.users.get_users")
+            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.users.get_users")
             response.raise_for_status()
             data = response.json()
 
@@ -72,7 +72,7 @@ async def fetch_active_users():
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get("http://clientportal.org:8080/api/method/clientportalapp_admin.users.get_active_users") #pass the URl Dynamically
+            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.users.get_active_users") #pass the URl Dynamically
             response.raise_for_status()
             data = response.json()
 
@@ -106,7 +106,7 @@ async def fetch_active_modules():
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get("http://clientportal.org:8080/api/method/clientportalapp_admin.modules.get_modules")
+            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.modules.get_modules")
             response.raise_for_status()
             data = response.json()
 
@@ -144,7 +144,7 @@ async def fetch_active_sites(email: str):
 
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                "http://clientportal.org:8080/api/method/clientportalapp_admin.sites.get_sites",
+                f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.sites.get_sites",
                 params=params  # Pass the email parameter here
             )
             response.raise_for_status()
@@ -232,7 +232,7 @@ async def fetch_consolidated_site_data(email: str) -> dict:
     """
     Fetches consolidated site data from the Frappe API.
     """
-    frappe_api_url = f"http://clientportal.org:8080/api/method/admin_clientportalapp.site_data.get_consolidated_site_data?email={email}"
+    frappe_api_url = f"{FRAPPE_BASE_URL}/api/method/admin_clientportalapp.site_data.get_consolidated_site_data?email={email}"
     
     try:
         async with httpx.AsyncClient() as client:
@@ -270,6 +270,10 @@ async def fetch_user_data(email: str, db: AsyncSession) -> dict:
     # Extract data from Frappe API response
     totals = frappe_response["message"]["data"]["totals"]
     sites_data = frappe_response["message"]["data"]["sites_data"]
+    
+    # Extract site counts from the API response
+    total_sites = totals.get("total_sites", 0)
+    active_sites = totals.get("active_sites", 0)
 
     # Fetch user from database
     result = await db.execute(select(User).filter(User.email == email))
@@ -304,11 +308,14 @@ async def fetch_user_data(email: str, db: AsyncSession) -> dict:
             existing_site.active_users_count = site["stats"]["active_users"]
             existing_site.active_modules_count = site["stats"]["active_modules"]
             existing_site.sites_data = site
+            # Update site counts from API response
+            existing_site.total_site_counts = total_sites
+            existing_site.active_site_counts = active_sites
         else:
             # Create new site
             site_data = SiteData(
                 site_name=site_name,
-                active_sites=site_status,
+                active_sites=site_status == "active",
                 total_users_count=site["stats"]["total_users"],
                 active_users_count=site["stats"]["active_users"],
                 active_modules_count=site["stats"]["active_modules"],
@@ -316,7 +323,10 @@ async def fetch_user_data(email: str, db: AsyncSession) -> dict:
                 active_users=site["stats"]["active_users_list"],
                 active_modules=site["stats"]["modules"],
                 sites_data=site,
-                user_id=user.id
+                user_id=user.id,
+                # Add site counts from API response
+                total_site_counts=total_sites,
+                active_site_counts=active_sites
             )
             db.add(site_data)
 
@@ -327,7 +337,6 @@ async def fetch_user_data(email: str, db: AsyncSession) -> dict:
         "totals": totals,
         "sites_data": sites_data,
     }
-
 
 
 async def fetch_user_data_count(email: str):

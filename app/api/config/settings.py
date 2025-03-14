@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str
     SESSION_SECRET_KEY: str
     PAYSTACK_SECRET_KEY:str
+    FRAPPE_BASE_URL:str
 
     
     

@@ -59,6 +59,10 @@ class SiteData(Base):
     total_users_count = Column(Integer)
     active_users_count = Column(Integer)
     active_modules_count = Column(Integer)
+    total_site_counts =  Column(Integer)
+    active_site_counts =  Column(Integer)
+    
+    #site active status
     active_sites = Column(Boolean, default=False)
 
     # Storing additional data as JSON

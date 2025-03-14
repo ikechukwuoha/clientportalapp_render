@@ -1,4 +1,4 @@
-FRAPPE_URL = "http://clientportal.org:8080"
+FRAPPE_BASE_URL = "http://clientportal.org:8080"
 FRAPPE_API_KEY = "your_api_key"
 FRAPPE_API_SECRET = "your_api_secret"
 

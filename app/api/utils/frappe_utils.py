@@ -2,9 +2,10 @@ import json
 from fastapi import HTTPException
 import httpx
 import logging
+from app.api.config.erp_config import FRAPPE_BASE_URL
 
 # Define these at the top of your file
-FRAPPE_BASE_URL = "http://clientportal.org:8080"
+
 FRAPPE_SITE_CREATE_ENDPOINT = f"{FRAPPE_BASE_URL}/api/method/admin_clientportalapp.site_manager_app.create_new_site"
 FRAPPE_STORE_SITE_ENDPOINT = f"{FRAPPE_BASE_URL}/api/method/admin_clientportalapp.sites.save_site"
 
@@ -54,7 +55,7 @@ async def store_site_data(site_data):
     
 
 
-async def create_frappe_site(site_name: str):
+async def create_frappe_site(site_name: str, plan: str):
     # Create a new Frappe site using the existing site creation endpoint.
   
     
@@ -64,6 +65,7 @@ async def create_frappe_site(site_name: str):
     
     site_data = {
         "site_name": site_name,
+        "plan": plan
     }
     
     headers = {
@@ -86,6 +88,12 @@ async def create_frappe_site(site_name: str):
             status_code=500,
             detail=f"Failed to create Frappe site: {str(e)}"
         )
+        
+        
+        
+        
+        
+        
         
         
 
