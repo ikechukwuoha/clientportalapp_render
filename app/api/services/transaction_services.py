@@ -227,7 +227,7 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
 
 async def get_transactions_by_user_id(user_id: str, db: AsyncSession):
     try:
-        # Fetch transactions with corresponding site data in one query
+        # Fetch transactions with corresponding site data in one que
         query = (
             select(UserTransactions, SiteData.active_sites)
             .join(SiteData, UserTransactions.site_name == SiteData.site_name, isouter=True)
