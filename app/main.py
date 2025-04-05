@@ -19,12 +19,9 @@ app = FastAPI(title=settings.PROJECT_NAME)
 
 # CORS configuration
 origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3000",
-    'http://localhost:5175',
-    'http://localhost:5173',
-    'http://localhost:5174'
+    'localhost:3000',
+    'portal.purpledove.net',
+    'https://portal.purpledove.net'
 ]
 app.add_middleware(
     CORSMiddleware,
