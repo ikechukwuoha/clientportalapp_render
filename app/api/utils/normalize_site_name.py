@@ -15,7 +15,7 @@ def normalize_site_name(site_name: str) -> str:
     site_name = re.sub(r'\.[a-z]{2,}(\.[a-z]{2,})?$', '', site_name, flags=re.IGNORECASE)
     
     # Append '.purpledove.net' to the site name
-    normalized_site_name = f"{site_name}.purpledove.net"
+    normalized_site_name = f"{site_name}.erp.staging.purpledove.net"
     
     return normalized_site_name
 
