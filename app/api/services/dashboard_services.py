@@ -30,7 +30,7 @@ from typing import Optional
 # API_SECRET = os.getenv("API_SECRET")
 # API_KEY = "7a6c5c848566ccb"
 # API_SECRET = "7841288d219f16c"
-# API_URL = "http://localhost:8000/api/method/clientportalapp_admin.users.get_users"
+# API_URL = "http://localhost:8000/api/method/admin_clientportalapp.users.get_users"
 
 
 async def fetch_total_users():
@@ -40,7 +40,7 @@ async def fetch_total_users():
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.users.get_users")
+            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/admin_clientportalapp.users.get_users")
             response.raise_for_status()
             data = response.json()
 
@@ -72,7 +72,7 @@ async def fetch_active_users():
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.users.get_active_users") #pass the URl Dynamically
+            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/admin_clientportalapp.users.get_active_users") #pass the URl Dynamically
             response.raise_for_status()
             data = response.json()
 
@@ -106,7 +106,7 @@ async def fetch_active_modules():
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.modules.get_modules")
+            response = await client.get(f"{FRAPPE_BASE_URL}/api/method/admin_clientportalapp.modules.get_modules")
             response.raise_for_status()
             data = response.json()
 
@@ -144,7 +144,7 @@ async def fetch_active_sites(email: str):
 
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{FRAPPE_BASE_URL}/api/method/clientportalapp_admin.sites.get_sites",
+                f"{FRAPPE_BASE_URL}/api/method/admin_clientportalapp.sites.get_sites",
                 params=params  # Pass the email parameter here
             )
             response.raise_for_status()
@@ -198,7 +198,7 @@ async def fetch_active_users_dynamic(email: str):
     headers = {
         # "Authorization": f"token {API_KEY}:{API_SECRET}"
     }
-    url = f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users"
+    url = f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users"
 
     try:
         async with httpx.AsyncClient() as client:
@@ -384,9 +384,9 @@ async def fetch_user_data_count(email: str):
 
             # Define dynamic URLs
             urls = {
-                "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-                "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-                "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules"
+                "total_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_users",
+                "active_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users",
+                "active_modules": f"http://{site_name}/api/method/admin_clientportalapp.modules.get_modules"
             }
 
             try:
@@ -486,9 +486,9 @@ async def get_site_data(id: str, db: AsyncSession):
 
                         # Real-time API calls
                         urls = {
-                            "total_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_users",
-                            "active_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_active_users",
-                            "active_modules": f"http://{site.site_name}/api/method/clientportalapp_admin.modules.get_modules",
+                            "total_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_users",
+                            "active_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_active_users",
+                            "active_modules": f"http://{site.site_name}/api/method/admin_clientportalapp.modules.get_modules",
                         }
 
                         # Make API calls with explicit timeouts
@@ -671,9 +671,9 @@ async def get_site_data(id: str, db: AsyncSession):
 #                 continue
 
 #             urls = {
-#                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-#                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                 "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules",
+#                 "total_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_users",
+#                 "active_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                 "active_modules": f"http://{site_name}/api/method/admin_clientportalapp.modules.get_modules",
 #             }
 
 #             try:
@@ -810,9 +810,9 @@ async def get_site_data(id: str, db: AsyncSession):
 #                 try:
 #                     # Real-time API calls to check for updates
 #                     urls = {
-#                         "total_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_users",
-#                         "active_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                         "active_modules": f"http://{site.site_name}/api/method/clientportalapp_admin.modules.get_modules",
+#                         "total_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_users",
+#                         "active_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                         "active_modules": f"http://{site.site_name}/api/method/admin_clientportalapp.modules.get_modules",
 #                     }
 
 #                     # Parallel API calls for efficiency
@@ -927,9 +927,9 @@ async def get_site_data(id: str, db: AsyncSession):
 #                 try:
 #                     # Real-time API calls to check for updates
 #                     urls = {
-#                         "total_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_users",
-#                         "active_users": f"http://{site.site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                         "active_modules": f"http://{site.site_name}/api/method/clientportalapp_admin.modules.get_modules",
+#                         "total_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_users",
+#                         "active_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                         "active_modules": f"http://{site.site_name}/api/method/admin_clientportalapp.modules.get_modules",
 #                     }
 
 #                     # Parallel API calls for efficiency
@@ -1130,9 +1130,9 @@ async def get_site_data(id: str, db: AsyncSession):
 
 #             # Define dynamic URLs
 #             urls = {
-#                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-#                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                 "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules",
+#                 "total_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_users",
+#                 "active_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                 "active_modules": f"http://{site_name}/api/method/admin_clientportalapp.modules.get_modules",
 #             }
 
 #             try:
@@ -1301,9 +1301,9 @@ async def get_site_data(id: str, db: AsyncSession):
 
 #             # Define dynamic URLs
 #             urls = {
-#                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-#                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                 "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules"
+#                 "total_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_users",
+#                 "active_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                 "active_modules": f"http://{site_name}/api/method/admin_clientportalapp.modules.get_modules"
 #             }
 
 #             try:
@@ -1411,9 +1411,9 @@ async def get_site_data(id: str, db: AsyncSession):
 
 #             # Define dynamic URLs
 #             urls = {
-#                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-#                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                 "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules"
+#                 "total_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_users",
+#                 "active_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                 "active_modules": f"http://{site_name}/api/method/admin_clientportalapp.modules.get_modules"
 #             }
 
 #             try:
@@ -1524,9 +1524,9 @@ async def get_site_data(id: str, db: AsyncSession):
 
 #             # Define dynamic URLs
 #             urls = {
-#                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-#                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                 "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules"
+#                 "total_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_users",
+#                 "active_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                 "active_modules": f"http://{site_name}/api/method/admin_clientportalapp.modules.get_modules"
 #             }
 
 #             try:
@@ -1658,10 +1658,10 @@ async def get_site_data(id: str, db: AsyncSession):
 
 #             # Define dynamic URLs
 #             urls = {
-#                 "total_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_users",
-#                 "active_users": f"http://{site_name}/api/method/clientportalapp_admin.users.get_active_users",
-#                 "active_modules": f"http://{site_name}/api/method/clientportalapp_admin.modules.get_modules",
-#                 "active_sites": f"http://{site_name}/api/method/clientportalapp_admin.sites.get_sites",
+#                 "total_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_users",
+#                 "active_users": f"http://{site_name}/api/method/admin_clientportalapp.users.get_active_users",
+#                 "active_modules": f"http://{site_name}/api/method/admin_clientportalapp.modules.get_modules",
+#                 "active_sites": f"http://{site_name}/api/method/admin_clientportalapp.sites.get_sites",
 #             }
 
 #             try:
