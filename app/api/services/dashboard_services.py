@@ -486,9 +486,9 @@ async def get_site_data(id: str, db: AsyncSession):
 
                         # Real-time API calls
                         urls = {
-                            "total_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_users",
-                            "active_users": f"http://{site.site_name}/api/method/admin_clientportalapp.users.get_active_users",
-                            "active_modules": f"http://{site.site_name}/api/method/admin_clientportalapp.modules.get_modules",
+                            "total_users": f"https://{site.site_name}/api/method/admin_clientportalapp.users.get_users",
+                            "active_users": f"https://{site.site_name}/api/method/admin_clientportalapp.users.get_active_users",
+                            "active_modules": f"https://{site.site_name}/api/method/admin_clientportalapp.modules.get_modules",
                         }
 
                         # Make API calls with explicit timeouts
