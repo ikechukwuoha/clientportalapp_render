@@ -20,6 +20,7 @@ app = FastAPI(title=settings.PROJECT_NAME)
 # CORS configuration
 origins = [
     'localhost:3000',
+    'http://localhost:3000',
     'portal.purpledove.net',
     'https://portal.purpledove.net'
 ]
