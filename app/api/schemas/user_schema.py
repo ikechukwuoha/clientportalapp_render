@@ -139,12 +139,14 @@ class UserUpdate(BaseModel):
     email: Optional[str] = Field(
         None,
         description="Email cannot be updated after registration, Please contact Admin",
-        frozen=True  # Stronger than readonly in Pydantic v2
+        frozen=True
     )
     
     model_config = ConfigDict(
         extra="forbid",
-        frozen=False 
+        frozen=False,
+        from_attributes=True,  # Moved from Config class
+        arbitrary_types_allowed=True  # Moved from Config class
     )
 
     @field_validator('*', mode='before')
@@ -164,10 +166,6 @@ class UserUpdate(BaseModel):
         if value == "":
             return None
         return value
-
-    class Config:
-        from_attributes = True  # Updated from orm_mode which is deprecated
-        arbitrary_types_allowed = True
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
