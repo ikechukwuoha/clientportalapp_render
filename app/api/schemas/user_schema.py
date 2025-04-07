@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from passlib.context import CryptContext
 from pydantic import BaseModel, field_validator, Field, EmailStr, UUID4, field_validator
 import re
@@ -133,9 +133,19 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     country: Optional[str] = None
-    email: Optional[EmailStr] = None
     role_id: Optional[UUID4] = None 
     is_active: Optional[bool] = None
+    
+    email: Optional[str] = Field(
+        None,
+        description="Email cannot be updated after registration, Please contact Admin",
+        frozen=True  # Stronger than readonly in Pydantic v2
+    )
+    
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=False 
+    )
 
     @field_validator('*', mode='before')
     def convert_empty_to_none(cls, value):

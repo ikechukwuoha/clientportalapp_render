@@ -141,9 +141,31 @@ async def get_user_role(user_id: uuid.UUID, role_name: str = Depends(get_role_na
 async def settings_update_user(
     user_id: uuid.UUID, 
     user_update: UserUpdate, 
-    db: AsyncSession = Depends(get_db)  # Ensure `AsyncSession` is used
+    db: AsyncSession = Depends(get_db)
 ):
-    return await update_user(user_id, user_update, db)  # Await the function
+    # First, get the current user from the database
+    result = await db.execute(select(User).filter(User.id == user_id))
+    user = result.scalars().first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Convert the update data to dictionary using model_dump()
+    update_data = user_update.model_dump(exclude_unset=True)
+    
+    # Remove the email from the update data if it exists
+    if 'email' in update_data:
+        del update_data['email']
+    
+    # Now update only the allowed fields
+    for field, value in update_data.items():
+        setattr(user, field, value)
+    
+    await db.commit()
+    await db.refresh(user)
+    
+    return user
+
 
 @router.put("/change-password/{user_id}", status_code=status.HTTP_200_OK, tags=["users-related-routes"])
 async def update_password(
