@@ -16,7 +16,7 @@ from app.api.utils.frappe_utils import create_frappe_site, store_site_data
 
 from sqlalchemy.exc import NoResultFound
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 import json
@@ -27,8 +27,7 @@ from app.api.utils.normalize_site_name import normalize_site_name, validate_site
 
 
     
-    
-    
+
 async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(get_db)):
     """
     Store a transaction from the frontend, validate it with Paystack, and store the response in the database.
@@ -85,21 +84,28 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
             
         quantity = get_field("quantity", field_type=int)
         amount = get_field("amount", field_type=float)
-        valid_from_str = get_field("valid_from")
-        valid_upto_str = get_field("valid_upto")
+        # We'll ignore valid_from and valid_upto from frontend
+        # These variables are just here for backward compatibility with frontend
+        _ = get_field("valid_from", required=False)
+        _ = get_field("valid_upto", required=False)
         training_and_setup = get_field("training_and_setup", field_type=bool)
         transaction_id = get_field("transaction_id", field_type=int)
         message = get_field("message")
 
-        # Parse dates with error handling
-        try:
-            valid_from = datetime.strptime(valid_from_str, "%Y-%m-%d")
-            valid_upto = datetime.strptime(valid_upto_str, "%Y-%m-%d")
-        except ValueError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid date format. Dates should be in YYYY-MM-DD format: {str(e)}"
-            )
+        # Calculate valid_from and valid_upto based on current time and plan
+        valid_from = datetime.now()
+        
+        # Calculate valid_upto based on the plan
+        if plan.lower() in ["standard", "custom"]:
+            # One year from now
+            valid_upto = valid_from + timedelta(days=365)
+        elif plan.lower() == "free":
+            # 14 days (two weeks) from now
+            valid_upto = valid_from + timedelta(days=14)
+        else:
+            # Default to one year for any other plan
+            valid_upto = valid_from + timedelta(days=365)
+            logging.warning(f"Unknown plan type: {plan}, defaulting to 1 year validity")
 
         # Convert user_id to UUID with error handling
         try:
@@ -176,6 +182,7 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
                 site_creation_response = await create_frappe_site(
                     site_name=site_name, 
                     plan=plan,
+                    quantity=quantity
                 )
                 logging.info(f"Site creation response: {site_creation_response}")
                 
@@ -208,7 +215,9 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
                 "site_name": users_transactions.site_name,
                 "original_site_name": original_site_name,  # Include the original site name in response
                 "site_creation_status": users_transactions.site_creation_status,
-                "site_creation_job_id": getattr(users_transactions, 'site_creation_job_id', None)
+                "site_creation_job_id": getattr(users_transactions, 'site_creation_job_id', None),
+                "valid_from": valid_from.isoformat(),
+                "valid_upto": valid_upto.isoformat()
             },
             "site_creation": site_creation_response if site_creation_response else None
         }
@@ -218,7 +227,225 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
         raise e
     except Exception as e:
         logging.error(f"Unhandled error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error storing transaction: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error storing transaction: {str(e)}")    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+# async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(get_db)):
+#     """
+#     Store a transaction from the frontend, validate it with Paystack, and store the response in the database.
+#     """
+#     # Create a safe copy of transaction data for logging
+#     safe_data = {
+#         k: str(v) if isinstance(v, (datetime, uuid.UUID)) else v 
+#         for k, v in transaction_data.items()
+#     }
+#     logging.info(f"Received transaction data: {json.dumps(safe_data, cls=CustomJSONEncoder)}")
+    
+#     try:
+#         # Extract all fields from transaction data with type validation
+#         def get_field(field_name: str, required: bool = True, field_type: type = str) -> Any:
+#             value = transaction_data.get(field_name)
+#             if value is None and required:
+#                 raise HTTPException(
+#                     status_code=400,
+#                     detail=f"Missing required field: {field_name}"
+#                 )
+#             if value is not None and not isinstance(value, field_type) and field_type != datetime:
+#                 try:
+#                     value = field_type(value)
+#                 except (ValueError, TypeError):
+#                     raise HTTPException(
+#                         status_code=400,
+#                         detail=f"Invalid type for {field_name}. Expected {field_type.__name__}"
+#                     )
+#             return value
+
+#         # Extract fields with type validation
+#         user_id = get_field("user_id", field_type=str)  # Will be converted to UUID later
+#         payment_reference = get_field("payment_reference")
+#         plan = get_field("plan")
+#         first_name = get_field("first_name")
+#         last_name = get_field("last_name")
+#         email = get_field("email")
+#         payment_status = get_field("payment_status")
+#         phone = get_field("phone")
+#         country = get_field("country")
+#         company_name = get_field("company_name")
+#         organization = get_field("organization")
+#         original_site_name = get_field("site_name")
+        
+#         # Normalize the site name
+#         site_name = normalize_site_name(original_site_name)
+        
+#         # Validate the normalized site name
+#         if not validate_site_name(site_name.split(".")[0]):
+#             raise HTTPException(
+#                 status_code=400,
+#                 detail=f"Invalid site name after normalization: {site_name}"
+#             )
+            
+#         quantity = get_field("quantity", field_type=int)
+#         amount = get_field("amount", field_type=float)
+#         valid_from_str = get_field("valid_from")
+#         valid_upto_str = get_field("valid_upto")
+#         training_and_setup = get_field("training_and_setup", field_type=bool)
+#         transaction_id = get_field("transaction_id", field_type=int)
+#         message = get_field("message")
+
+#         # Parse dates with error handling
+#         try:
+#             valid_from = datetime.strptime(valid_from_str, "%Y-%m-%d")
+#             valid_upto = datetime.strptime(valid_upto_str, "%Y-%m-%d")
+#         except ValueError as e:
+#             raise HTTPException(
+#                 status_code=400,
+#                 detail=f"Invalid date format. Dates should be in YYYY-MM-DD format: {str(e)}"
+#             )
+
+#         # Convert user_id to UUID with error handling
+#         try:
+#             user_id = uuid.UUID(str(user_id))
+#         except ValueError:
+#             raise HTTPException(
+#                 status_code=400,
+#                 detail="Invalid UUID format for user_id"
+#             )
+
+#         # Verify user exists
+#         result = await db.execute(select(User).filter(User.id == user_id))
+#         user = result.scalar_one_or_none()
+#         if not user:
+#             raise HTTPException(
+#                 status_code=404,
+#                 detail="User not found"
+#             )
+
+#         # Verify payment with Paystack
+#         paystack_status, paystack_response = await verify_paystack_transaction(payment_reference)
+#         logging.info(f"Paystack status: {paystack_status}")
+#         logging.info(f"Paystack response: {paystack_response}")
+        
+#         if paystack_status not in ["success", "failed"]:
+#             raise HTTPException(
+#                 status_code=400,
+#                 detail="Invalid Paystack transaction status. Please verify your payment reference."
+#             )
+
+#         # If payment failed, don't proceed with site creation
+#         if paystack_status == "failed":
+#             raise HTTPException(
+#                 status_code=400,
+#                 detail="Payment verification failed"
+#             )
+
+#         # Create transaction record
+#         users_transactions = UserTransactions(
+#             user_id=user_id,
+#             plan=plan,
+#             payment_status=payment_status,
+#             first_name=first_name,
+#             last_name=last_name,
+#             email=email,
+#             phone=phone,
+#             country=country,
+#             company_name=company_name,
+#             organization=organization,
+#             site_name=site_name,  # Store normalized site name
+#             quantity=quantity,
+#             amount=amount,
+#             valid_from=valid_from,
+#             valid_upto=valid_upto,
+#             training_and_setup=training_and_setup,
+#             payment_reference=payment_reference,
+#             transaction_id=transaction_id,
+#             message=message,
+#             paystack_status=paystack_status,
+#             paystack_response=json.dumps(paystack_response, cls=CustomJSONEncoder),
+#         )
+
+#         # Save transaction to database with safe serialization
+#         db.add(users_transactions)
+#         await db.commit()
+#         await db.refresh(users_transactions)
+        
+#         site_creation_response = None
+        
+#         if paystack_status == "success":
+#             try:
+#                 logging.info("Attempting to create Frappe site...")
+#                 # Create Frappe site with normalized site name (without storing site data in Frappe)
+#                 site_creation_response = await create_frappe_site(
+#                     site_name=site_name, 
+#                     plan=plan,
+#                     quantity=quantity
+#                 )
+#                 logging.info(f"Site creation response: {site_creation_response}")
+                
+#                 # Update transaction with site creation status
+#                 users_transactions.site_creation_status = "initiated"
+#                 if site_creation_response and "job_id" in site_creation_response:
+#                     users_transactions.site_creation_job_id = site_creation_response.get("job_id")
+                
+#                 await db.commit()
+                
+#                 logging.info(f"Site creation initiated successfully for {site_name}")
+                
+#             except Exception as e:
+#                 error_msg = f"Error in site creation process: {str(e)}"
+#                 logging.error(error_msg)
+#                 users_transactions.site_creation_status = "failed"
+#                 users_transactions.site_creation_error = error_msg
+#                 await db.commit()
+#                 # We don't raise an exception here as the payment was successful
+
+#         # Return success response with all relevant data
+#         return {
+#             "message": "Transaction stored successfully",
+#             "transaction": {
+#                 "id": str(users_transactions.id),
+#                 "user_id": str(users_transactions.user_id),
+#                 "plan": users_transactions.plan,
+#                 "payment_status": users_transactions.payment_status,
+#                 "paystack_status": paystack_status,
+#                 "site_name": users_transactions.site_name,
+#                 "original_site_name": original_site_name,  # Include the original site name in response
+#                 "site_creation_status": users_transactions.site_creation_status,
+#                 "site_creation_job_id": getattr(users_transactions, 'site_creation_job_id', None)
+#             },
+#             "site_creation": site_creation_response if site_creation_response else None
+#         }
+
+#     except HTTPException as e:
+#         logging.error(f"HTTPException: {e.detail}")
+#         raise e
+#     except Exception as e:
+#         logging.error(f"Unhandled error: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"Error storing transaction: {str(e)}")
 
 
 

@@ -55,17 +55,18 @@ async def store_site_data(site_data):
     
 
 
-async def create_frappe_site(site_name: str, plan: str):
+async def create_frappe_site(site_name: str, plan: str, quantity: int):
     # Create a new Frappe site using the existing site creation endpoint.
   
     
     # Ensure site name ends with .purpledove.net
-    if not site_name.endswith('.purpledove.net'):
-        site_name = f"{site_name}.purpledove.net"
+    if not site_name.endswith('erp.staging.purpledove.net'):
+        site_name = f"{site_name}erp.staging.purpledove.net"
     
     site_data = {
         "site_name": site_name,
-        "plan": plan
+        "plan": plan,
+        "user_count": quantity
     }
     
     headers = {
