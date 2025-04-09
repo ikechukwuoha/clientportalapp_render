@@ -76,7 +76,7 @@ async def store_transaction(transaction_data: dict, db: AsyncSession = Depends(g
         site_name = normalize_site_name(original_site_name)
         
         # Validate the normalized site name
-        if not validate_site_name(site_name.split(".")[0]):
+        if not validate_site_name(site_name):
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid site name after normalization: {site_name}"
